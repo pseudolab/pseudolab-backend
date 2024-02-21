@@ -13,6 +13,7 @@ gunicorn = "^21.2.0"
 sqlalchemy = "^2.0.25"
 aiomysql = "^0.2.0"
 python-dotenv = "^1.0.1"
+httpx = "^0.27.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -23,3 +24,6 @@ black = "^24.1.1"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 120

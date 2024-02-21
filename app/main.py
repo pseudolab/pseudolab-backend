@@ -5,6 +5,9 @@ from fastapi.responses import JSONResponse
 app = FastAPI()
 
 
+@app.get("/")
+def hc():
+    return "server is running"
 
 
 if __name__ == "__main__":
