@@ -1,3 +1,4 @@
+import os
 import logging
 from logging.handlers import RotatingFileHandler
 
@@ -10,7 +11,8 @@ date_format = "%Y-%m-%d %H:%M:%S"
 formatter = logging.Formatter(log_format, datefmt=date_format)
 
 # 로그 핸들러 설정 (여기서는 RotatingFileHandler 사용)
-log_filename = "psudo_backend.log"
+os.makedirs("logs", exist_ok=True)
+log_filename = "logs/psudo_backend.log"
 max_log_size = 5 * 1024 * 1024  # 5 MB
 backup_count = 3  # 로그 파일 백업 개수
 

@@ -6,7 +6,6 @@ router = APIRouter(prefix="/auth")
 
 
 @router.get("/discord/login/redirect")
-async def discord_login(code: str, discord_login: DiscordLoginDepends) -> RedirectResponse:
-    if not discord_login.login(code):
-        raise Exception()
+async def discord_oauth2_login(code: str, discord_login: DiscordLoginDepends) -> RedirectResponse:
+    result = await discord_login.login(code)
     return RedirectResponse("http://localhost:5173/")
