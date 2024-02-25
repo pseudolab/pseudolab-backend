@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-
+from app.api import routers
 
 app = FastAPI()
 
@@ -9,6 +9,9 @@ app = FastAPI()
 def hc():
     return "server is running"
 
+
+for router in routers:
+    app.include_router(router)
 
 if __name__ == "__main__":
     import uvicorn

@@ -12,6 +12,6 @@ class User(Base):
     name = mapped_column(String(50), nullable=False)
 
     @classmethod
-    async def get_user_by_id(cls, session: AsyncSessionDepends, user_id: int) -> User | None:
+    async def get_user_by_id(cls, session: AsyncSessionDepends, user_id: int) -> User:
         stmt = select(cls).where(cls.id == user_id)
         return await session.sclar(stmt)
