@@ -1,17 +1,18 @@
 import os
 from typing import AsyncIterator
 from app.core.db import AsyncSessionDepends
+from app.models.user import User
 from httpx import AsyncClient
 from fastapi import HTTPException, Depends
 from typing import Annotated
-from enum import Enum
+from enum import Enum, auto
 
 REDIRECT_URI = "http://localhost:8000/auth/discord/login/redirect"
 
 
 class LoginState(Enum):
-    SignIn = 0
-    SignUp = 1
+    SignIn = auto()
+    SignUp = auto()
 
 
 class DiscordLogin:
@@ -19,8 +20,8 @@ class DiscordLogin:
         self.session = session
 
     async def login(self, code: str) -> LoginState:
-        client_id = os.getenv("CLIENT_ID")
-        client_secret = os.getenv("CLIENT_SECRET")
+        client_id = os.getenv("DISCORD_CLIENT_ID")
+        client_secret = os.getenv("DISCORD_CLIENT_SECRET")
         async with AsyncClient() as client:
             headers = {"Content-Type": "application/x-www-form-urlencoded"}
             data = {
@@ -46,10 +47,18 @@ class DiscordLogin:
                     status_code=500, detail=f"Error in getting token or user data from Discord API: {response.json()}"
                 )
 
+            user_data = response.json()
+            email = user_data.get("email")
+
+            # 이메일로 유저 가입 유무 체크
+            find_user = await User.get_user_by_email(self.session, email)
+            if not find_user:
+                return LoginState.SignUp
+
         # DB 체크해서 로그인, 회원가입 상태 체크
         return LoginState.SignIn
 
-    async def create_user(self):
+    async def sing_up(self):
         pass
 
 

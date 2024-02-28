@@ -14,6 +14,11 @@ from sqlalchemy.ext.asyncio import (
 
 class Database:
     def __init__(self):
+        self.async_engine = None
+        self.async_session_factory = None
+        self.async_scoped_session = None
+
+    def initialize(self):
         self.async_engine = create_async_engine(
             os.getenv("DB_URL"),
             pool_pre_ping=True,
@@ -23,9 +28,7 @@ class Database:
             autoflush=False,
             future=True,
         )
-        self.async_scoped_session = async_scoped_session(
-            self.async_session_factory, scopefunc=current_task
-        )
+        self.async_scoped_session = async_scoped_session(self.async_session_factory, scopefunc=current_task)
 
     async def get_session(self) -> AsyncIterator[AsyncSession]:
         async with self.async_scoped_session() as session:
@@ -40,4 +43,4 @@ class Database:
 
 
 db = Database()
-AsyncSessionDepends = Annotated[async_sessionmaker, Depends(db.get_session)]
+AsyncSessionDepends = Annotated[AsyncSession, Depends(db.get_session)]
