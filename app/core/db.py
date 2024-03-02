@@ -11,6 +11,10 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession,
 )
 
+from dotenv import load_dotenv
+
+load_dotenv("app/config/.env", override=True)
+
 
 class Database:
     def __init__(self):

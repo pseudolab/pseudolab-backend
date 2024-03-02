@@ -19,3 +19,7 @@ poetry install
 File - Settings - Project - Python Interpreter  
 Add Interpreter - Add Local Interpreter  
 Poetry Interpreter 통하여 poetry 환경 생성 및 지정
+
+## database
+
+- `docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=root -d -p 3306:3306 mysql:latest`
