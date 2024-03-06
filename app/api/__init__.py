@@ -1,6 +1,3 @@
-from app.api.auth import *
-import app.api.auth.discord_login  # noqa
+from app.api import auth
 
-routers = [
-    auth.router
-]
+routers = [auth.router]
