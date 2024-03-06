@@ -1,3 +1,3 @@
-from app.api import auth
+from api import auth
 
 routers = [auth.router]

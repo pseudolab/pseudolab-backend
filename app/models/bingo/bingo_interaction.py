@@ -1,7 +1,7 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from app.models.base import Base
+from models.base import Base
 from sqlalchemy import Integer, DateTime
 from sqlalchemy.orm import mapped_column
 

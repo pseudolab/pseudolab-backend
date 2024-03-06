@@ -1,5 +1,5 @@
-from app.models.base import Base
-from app.core.db import AsyncSessionDepends
+from models.base import Base
+from core.db import AsyncSessionDepends
 from sqlalchemy import Integer, String, select
 from sqlalchemy.orm import mapped_column
 from typing import AsyncIterator

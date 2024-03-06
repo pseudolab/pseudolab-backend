@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from fastapi.responses import RedirectResponse
-from app.api.auth.discord_login import DiscordLoginDepends
+from api.auth.discord_login import DiscordLoginDepends
 
 router = APIRouter(prefix="/auth")
 

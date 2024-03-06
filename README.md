@@ -15,6 +15,9 @@ Root 경로에서 아래의 명령어 수행
 
 poetry install
 
+프로젝트 시작 경로인 Working Directory는 app
+
+
 ## pycharm을 사용한다면  
 File - Settings - Project - Python Interpreter  
 Add Interpreter - Add Local Interpreter  
