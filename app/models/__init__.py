@@ -1,3 +1,3 @@
-from app.models.base import Base
-from app.models.user import User
-from app.models.bingo import MetaWord, UserWordStatus, BingoInteraction
+from models.base import Base
+from models.user import User
+from models.bingo import MetaWord, UserWordStatus, BingoInteraction

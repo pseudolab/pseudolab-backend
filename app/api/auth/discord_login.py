@@ -1,7 +1,7 @@
 import os
 from typing import AsyncIterator
-from app.core.db import AsyncSessionDepends
-from app.models.user import User
+from core.db import AsyncSessionDepends
+from models.user import User
 from httpx import AsyncClient
 from fastapi import HTTPException, Depends
 from typing import Annotated

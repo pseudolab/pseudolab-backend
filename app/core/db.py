@@ -1,6 +1,6 @@
 import os
 from asyncio import current_task
-from app.core.log import log
+from core.log import log
 from typing import Annotated, AsyncIterator
 from fastapi import Depends
 from sqlalchemy.exc import SQLAlchemyError
