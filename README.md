@@ -18,6 +18,19 @@ poetry install
 프로젝트 시작 경로인 Working Directory는 app
 
 
+# Local DB 세팅하기
+
+MySQL Server Community 설치
+
+app 경로로 이동
+
+아래의 명령 수행
+
+```shell
+alembic upgrade head
+```
+
+
 ## pycharm을 사용한다면  
 File - Settings - Project - Python Interpreter  
 Add Interpreter - Add Local Interpreter  
