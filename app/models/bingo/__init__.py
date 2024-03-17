@@ -1,6 +1,6 @@
 from .meta_word import MetaWord
-from .user_word_status import UserWordStatus
+from .bingo_boards import BingoBoards
 from .bingo_interaction import BingoInteraction
 from .schema import MetaWordSchema
 
-__all__ = ["MetaWord", "UserWordStatus", "BingoInteraction", "MetaWordSchema"]
+__all__ = ["MetaWord", "BingoBoards", "BingoInteraction", "MetaWordSchema"]
