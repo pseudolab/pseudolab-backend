@@ -6,20 +6,26 @@ from httpx import AsyncClient
 from fastapi import HTTPException, Depends
 from typing import Annotated
 from enum import Enum, auto
+from api.auth.schema import LoginState, LoginType, LoginResponse
 
 REDIRECT_URI = "http://localhost:8000/auth/discord/login/redirect"
 
 
-class LoginState(Enum):
-    SignIn = auto()
-    SignUp = auto()
-
-
-class DiscordLogin:
+class SocialLogin:
     def __init__(self, session: AsyncSessionDepends):
         self.session = session
 
-    async def login(self, code: str) -> LoginState:
+    async def login(self, login_type: int, code: str) -> LoginResponse:
+        if login_type == LoginType.discord.value:
+            return await self.discord_login(code)
+        elif login_type == LoginType.google.value:
+            pass
+        elif login_type == LoginType.github.value:
+            pass
+
+    async def discord_login(self, code: str) -> LoginResponse:
+        login_state = LoginState.sign_in
+        message = "로그인 성공"
         client_id = os.getenv("DISCORD_CLIENT_ID")
         client_secret = os.getenv("DISCORD_CLIENT_SECRET")
         async with AsyncClient() as client:
@@ -30,7 +36,7 @@ class DiscordLogin:
                 "grant_type": "authorization_code",
                 "code": code,
                 "redirect_uri": REDIRECT_URI,
-                "scope": "identify, email, ",
+                "scope": "identify, email",
             }
             response = await client.post("https://discord.com/api/oauth2/token", headers=headers, data=data)
             if not response.is_success:
@@ -53,13 +59,20 @@ class DiscordLogin:
             # 이메일로 유저 가입 유무 체크
             find_user = await User.get_user_by_email(self.session, email)
             if not find_user:
-                return LoginState.SignUp
+                message = "회원 가입이 필요합니다."
+                login_state = LoginState.sign_up
 
         # DB 체크해서 로그인, 회원가입 상태 체크
-        return LoginState.SignIn
+        return LoginResponse(
+            ok=True,
+            message=message,
+            login_state=login_state,
+            access_token="",
+            refresh_token="",
+        )
 
     async def sing_up(self):
         pass
 
 
-DiscordLoginDepends = Annotated[DiscordLogin, Depends(DiscordLogin)]
+SocialLoginDepends = Annotated[SocialLogin, Depends(SocialLogin)]

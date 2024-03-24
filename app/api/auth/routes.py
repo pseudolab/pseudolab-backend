@@ -1,14 +1,15 @@
 from fastapi import APIRouter
-from fastapi.responses import RedirectResponse
-from api.auth.discord_login import DiscordLoginDepends
+from api.auth.schema import LoginToken, LoginResponse
+from api.auth.handlers.social_login import SocialLoginDepends
 
 router = APIRouter(prefix="/auth")
 
 
-@router.get("/discord/login/redirect")
-async def discord_oauth2_login(code: str, discord_login: DiscordLoginDepends) -> dict:
-    result = await discord_login.login(code)
-    if result.SignIn:
-        return {"ok": True}
-    elif result.SignUp:
-        return {"ok": True, "type": "signup"}
+@router.get("/login", description="로그인 API")
+async def oauth2_login(login_token: LoginToken, social_login: SocialLoginDepends) -> LoginResponse:
+    return await social_login.discord_login(login_token.code)
+
+
+@router.get("/sign-up", description="회원가입 API")
+async def oauth2_login(login_token: LoginToken, social_login: SocialLoginDepends) -> LoginResponse:
+    return await social_login.discord_login(login_token.code)
