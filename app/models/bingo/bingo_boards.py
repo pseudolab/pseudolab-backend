@@ -78,3 +78,17 @@ class BingoBoards(Base):
         board.bingo_count = bingo
         await session.flush()
         return board
+
+    @classmethod
+    async def get_user_selected_words(cls, session: AsyncSession, user_id: int):
+        board = await cls.get_board_by_userid(session, user_id)
+        if not board:
+            raise ValueError(f"{user_id} 의 빙고판이 존재하지 않습니다.")
+
+        board_data = board.board_data
+        selected_words = []
+        for i in range(5):
+            for j in range(5):
+                if board_data[str(i * 5 + j)]["selected"] == 1:
+                    selected_words.append(board_data[str(i * 5 + j)]["value"])
+        return selected_words

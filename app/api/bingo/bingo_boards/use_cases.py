@@ -25,3 +25,8 @@ class UpdateBingoBoardByUserId(BaseBingoBoard):
 class UpdateBingoCount(BaseBingoBoard):
     async def execute(self, user_id: int) -> bool:
         return await BingoBoards.update_bingo_count(self.async_session, user_id)
+
+
+class GetUserSelectedWords(BaseBingoBoard):
+    async def execute(self, user_id: int) -> BingoBoards:
+        return await BingoBoards.get_user_selected_words(self.async_session, user_id)
