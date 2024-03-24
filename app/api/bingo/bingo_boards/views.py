@@ -29,3 +29,11 @@ async def update_board_by_user_id(
     use_case: UpdateBingoBoardByUserId = Depends(UpdateBingoBoardByUserId),
 ):
     return await use_case.execute(**data.model_dump())
+
+
+@router.put("/bingo_count/{user_id}", response_model=BingoBoardResponse)
+async def update_bingo_count(
+    user_id: int = Path(..., title="유저 ID", ge=1),
+    use_case: UpdateBingoCount = Depends(UpdateBingoCount),
+):
+    return await use_case.execute(user_id)

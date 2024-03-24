@@ -59,15 +59,22 @@ class BingoBoards(Base):
 
         board_data = board.board_data
         bingo = 0
-        for i in range(5):
-            if all(board_data[i][j] == 1 for j in range(5)):
+        bingo_board = [[board_data[str(i * 5 + j)]["status"] for j in range(5)] for i in range(5)]
+
+        for row in bingo_board:  # 가로
+            if all(status == 1 for status in row):
                 bingo += 1
-            if all(board_data[j][i] == 1 for j in range(5)):
+
+        for col in zip(*bingo_board):  # 세로
+            if all(status == 1 for status in col):
                 bingo += 1
-        if all(board_data[i][i] == 1 for i in range(5)):
+
+        if all(bingo_board[i][i] == 1 for i in range(5)):  # 대각선 왼 -> 오
             bingo += 1
-        if all(board_data[i][4 - i] == 1 for i in range(5)):
+
+        if all(bingo_board[i][4 - i] == 1 for i in range(5)):  # 대각선 오 -> 왼
             bingo += 1
+
         board.bingo_count = bingo
         await session.flush()
         return board
