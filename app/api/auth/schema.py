@@ -30,3 +30,7 @@ class LoginResponse(BaseSchema):
     login_state: Optional[LoginState] = Field(description="로그인 상태 - 회원가입 필요 상태 또는 로그인 가능 상태")
     access_token: Optional[str] = Field(description="Bearer Access Token")
     refresh_token: Optional[str] = Field(description="Refresh Token")
+
+
+class LoginUrl(BaseSchema):
+    url: Optional[str] = Field(description="로그인을 위한 페이지를 보여주는 URL")

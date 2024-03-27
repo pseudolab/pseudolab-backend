@@ -1,12 +1,13 @@
 import os
 from typing import AsyncIterator
 from core.db import AsyncSessionDepends
+from core.dependencies import OAuth2SchemeDepends
 from models.user import User
 from httpx import AsyncClient
 from fastapi import HTTPException, Depends
 from typing import Annotated
 from enum import Enum, auto
-from api.auth.schema import LoginState, LoginType, LoginResponse
+from api.auth.schema import LoginState, LoginType, LoginResponse, LoginUrl
 
 REDIRECT_URI = "http://localhost:8000/auth/discord/login/redirect"
 
@@ -15,13 +16,21 @@ class SocialLogin:
     def __init__(self, session: AsyncSessionDepends):
         self.session = session
 
-    async def login(self, login_type: int, code: str) -> LoginResponse:
-        if login_type == LoginType.discord.value:
+    async def login(self, login_type: LoginType, code: str) -> LoginResponse:
+        """
+        OAuth2 redirect 통하여 로그인할 때 사용
+        :param login_type: 로그인 타입
+        :param code: 로그인 토큰
+        :return:
+        """
+        if login_type == LoginType.discord:
             return await self.discord_login(code)
-        elif login_type == LoginType.google.value:
+        elif login_type == LoginType.google:
             pass
-        elif login_type == LoginType.github.value:
+        elif login_type == LoginType.github:
             pass
+        else:
+            raise HTTPException(status_code=404, detail="login_type이 비정상 입니다.")
 
     async def discord_login(self, code: str) -> LoginResponse:
         login_state = LoginState.sign_in
@@ -45,6 +54,8 @@ class SocialLogin:
                 )
 
             res_data = response.json()
+
+            # 해당 토큰은 보관하는게 나을꺼같은데?
             access_token = res_data.get("access_token")
             headers = {"authorization": f"Bearer {access_token}"}
             response = await client.get("https://discordapp.com/api/users/@me", headers=headers)
@@ -71,7 +82,18 @@ class SocialLogin:
             refresh_token="",
         )
 
-    async def sing_up(self):
+    async def google_auth(self, code: str) -> LoginUrl:
+        return LoginUrl(url="")
+
+    async def google_login(self, code: str) -> LoginResponse:
+        pass
+
+
+class SignUp:
+    def __init__(self, session: AsyncSessionDepends, token: OAuth2SchemeDepends):
+        self.session = session
+
+    async def execute(self):
         pass
 
 
