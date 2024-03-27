@@ -4,13 +4,6 @@ from pydantic import Field
 from typing import Optional
 
 
-class LoginType(IntEnum):
-    none = -1
-    discord = 0
-    google = 1
-    github = 2
-
-
 class LoginState(IntEnum):
     none = -1
     sign_in = 0

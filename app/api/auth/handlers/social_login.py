@@ -13,26 +13,21 @@ REDIRECT_URI = "http://localhost:8000/auth/discord/login/redirect"
 
 
 class SocialLogin:
+    """
+    Social 로그인 순서
+    1. login API로 로그인 URL을 전달 받음
+    2. 해당 URL로 승인하면 각 OAuth에 설정한 redirect url 에 code와 함께 API 접근
+    3. code를 활용하여 각 OAuth에 대한 access_token 발급
+    4. 해당 access_token은 회원 정보를 가져오기 위한 토큰이니 별도로 JWT token과 refresh token을 발급해야할 뜻? 확인 필요.
+    """
+
     def __init__(self, session: AsyncSessionDepends):
         self.session = session
 
-    async def login(self, login_type: LoginType, code: str) -> LoginResponse:
-        """
-        OAuth2 redirect 통하여 로그인할 때 사용
-        :param login_type: 로그인 타입
-        :param code: 로그인 토큰
-        :return:
-        """
-        if login_type == LoginType.discord:
-            return await self.discord_login(code)
-        elif login_type == LoginType.google:
-            pass
-        elif login_type == LoginType.github:
-            pass
-        else:
-            raise HTTPException(status_code=404, detail="login_type이 비정상 입니다.")
+    async def discord_login(self) -> LoginUrl:
+        return LoginUrl(url="https://discord.com/api/oauth2/token")
 
-    async def discord_login(self, code: str) -> LoginResponse:
+    async def discord_login_redirect(self, code: str) -> LoginResponse:
         login_state = LoginState.sign_in
         message = "로그인 성공"
         client_id = os.getenv("DISCORD_CLIENT_ID")
@@ -82,16 +77,17 @@ class SocialLogin:
             refresh_token="",
         )
 
-    async def google_auth(self, code: str) -> LoginUrl:
+    async def google_login(self) -> LoginUrl:
         return LoginUrl(url="")
 
-    async def google_login(self, code: str) -> LoginResponse:
+    async def google_login_redirect(self, code: str) -> LoginResponse:
         pass
 
 
 class SignUp:
     def __init__(self, session: AsyncSessionDepends, token: OAuth2SchemeDepends):
         self.session = session
+        self.token = token
 
     async def execute(self):
         pass
