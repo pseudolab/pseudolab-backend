@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 from api.auth.schema import LoginToken, LoginResponse
-from api.auth.handlers.social_login import SocialLoginDepends, LoginType
+from api.auth.services.social_login import SocialLoginDepends
 
-router = APIRouter(prefix="/auth")
+auth_router = APIRouter(prefix="/auth")
 
 
 @router.get("/discord/login", description="Discord 로그인 URL 생성")

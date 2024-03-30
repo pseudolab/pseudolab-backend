@@ -7,7 +7,7 @@ from httpx import AsyncClient
 from fastapi import HTTPException, Depends
 from typing import Annotated
 from enum import Enum, auto
-from api.auth.schema import LoginState, LoginType, LoginResponse, LoginUrl
+from api.auth.schema import LoginState, LoginResponse, LoginUrl
 
 REDIRECT_URI = "http://localhost:8000/auth/discord/login/redirect"
 

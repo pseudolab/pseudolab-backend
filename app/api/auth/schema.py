@@ -11,8 +11,8 @@ class LoginState(IntEnum):
 
 
 class LoginToken(BaseSchema):
-    login_type: LoginType = Field(description="Social 로그인 종류")
-    code: str = Field(description="각 Social 로그인이 발급해주는 accept token")
+    login_type: Optional[LoginState] = Field(description="Social 로그인 종류")
+    code: Optional[str] = Field(description="각 Social 로그인이 발급해주는 accept token")
 
 
 class LoginResponse(BaseSchema):
