@@ -27,6 +27,7 @@ app 경로로 이동
 아래의 명령 수행
 
 ```shell
+alembic revision --autogenerate -m "마이그레이션 내용"
 alembic upgrade head
 ```
 
