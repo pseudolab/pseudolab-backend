@@ -15,14 +15,14 @@ async def read_root():
 
 @meta_word_router.post("/meta_word", response_model=CreateMetaWordResponse, status_code=201)
 async def create_meta_word(
-    data: CreateMetaWordRequest, use_case: CreateMetaWord = Depends(CreateMetaWord)
+    data: CreateMetaWordRequest, meta_words: CreateMetaWord = Depends(CreateMetaWord)
 ) -> CreateMetaWordResponse:
-    return await use_case.execute(**data.model_dump())
+    return await meta_words.execute(**data.model_dump())
 
 
 @meta_word_router.get("/meta_word/{word_type}", response_model=MetaWordsListResponse)
 async def get_meta_words_by_type(
     word_type: int = Path(..., title="단어 타입", ge=0, le=3),
-    use_case: GetMetaWordsByType = Depends(GetMetaWordsByType),
+    meta_words: GetMetaWordsByType = Depends(GetMetaWordsByType),
 ) -> list[MetaWordsListResponse]:
-    return MetaWordsListResponse(meta_words=[meta_word async for meta_word in use_case.execute(word_type)])
+    return MetaWordsListResponse(meta_words=[meta_word async for meta_word in meta_words.execute(word_type)])
