@@ -1,25 +1,35 @@
 import os
 from typing import AsyncIterator
 from core.db import AsyncSessionDepends
+from core.dependencies import OAuth2SchemeDepends
 from models.user import User
 from httpx import AsyncClient
 from fastapi import HTTPException, Depends
 from typing import Annotated
 from enum import Enum, auto
+from api.auth.schema import LoginState, LoginResponse, LoginUrl
 
 REDIRECT_URI = "http://localhost:8000/auth/discord/login/redirect"
 
 
-class LoginState(Enum):
-    SignIn = auto()
-    SignUp = auto()
+class SocialLogin:
+    """
+    Social 로그인 순서
+    1. login API로 로그인 URL을 전달 받음
+    2. 해당 URL로 승인하면 각 OAuth에 설정한 redirect url 에 code와 함께 API 접근
+    3. code를 활용하여 각 OAuth에 대한 access_token 발급
+    4. 해당 access_token은 회원 정보를 가져오기 위한 토큰이니 별도로 JWT token과 refresh token을 발급해야할 뜻? 확인 필요.
+    """
 
-
-class DiscordLogin:
     def __init__(self, session: AsyncSessionDepends):
         self.session = session
 
-    async def login(self, code: str) -> LoginState:
+    async def discord_login(self) -> LoginUrl:
+        return LoginUrl(url="https://discord.com/api/oauth2/token")
+
+    async def discord_login_redirect(self, code: str) -> LoginResponse:
+        login_state = LoginState.sign_in
+        message = "로그인 성공"
         client_id = os.getenv("DISCORD_CLIENT_ID")
         client_secret = os.getenv("DISCORD_CLIENT_SECRET")
         async with AsyncClient() as client:
@@ -30,7 +40,7 @@ class DiscordLogin:
                 "grant_type": "authorization_code",
                 "code": code,
                 "redirect_uri": REDIRECT_URI,
-                "scope": "identify, email, ",
+                "scope": "identify, email",
             }
             response = await client.post("https://discord.com/api/oauth2/token", headers=headers, data=data)
             if not response.is_success:
@@ -39,6 +49,8 @@ class DiscordLogin:
                 )
 
             res_data = response.json()
+
+            # 해당 토큰은 보관하는게 나을꺼같은데?
             access_token = res_data.get("access_token")
             headers = {"authorization": f"Bearer {access_token}"}
             response = await client.get("https://discordapp.com/api/users/@me", headers=headers)
@@ -53,13 +65,32 @@ class DiscordLogin:
             # 이메일로 유저 가입 유무 체크
             find_user = await User.get_user_by_email(self.session, email)
             if not find_user:
-                return LoginState.SignUp
+                message = "회원 가입이 필요합니다."
+                login_state = LoginState.sign_up
 
         # DB 체크해서 로그인, 회원가입 상태 체크
-        return LoginState.SignIn
+        return LoginResponse(
+            ok=True,
+            message=message,
+            login_state=login_state,
+            access_token="",
+            refresh_token="",
+        )
 
-    async def sing_up(self):
+    async def google_login(self) -> LoginUrl:
+        return LoginUrl(url="")
+
+    async def google_login_redirect(self, code: str) -> LoginResponse:
         pass
 
 
-DiscordLoginDepends = Annotated[DiscordLogin, Depends(DiscordLogin)]
+class SignUp:
+    def __init__(self, session: AsyncSessionDepends, token: OAuth2SchemeDepends):
+        self.session = session
+        self.token = token
+
+    async def execute(self):
+        pass
+
+
+SocialLoginDepends = Annotated[SocialLogin, Depends(SocialLogin)]
