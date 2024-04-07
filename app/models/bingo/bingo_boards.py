@@ -37,7 +37,11 @@ class BingoBoards(Base):
 
     @classmethod
     async def get_board_by_userid(cls, session: AsyncSession, user_id: int):
-        return await session.get(cls, user_id)
+        res = await session.get(cls, user_id)
+        if not res:
+            raise ValueError(f"{user_id} 의 빙고판이 존재하지 않습니다.")
+
+        return res
 
     @classmethod
     async def update_board_by_userid(cls, session: AsyncSession, user_id: int, board_data: dict):
