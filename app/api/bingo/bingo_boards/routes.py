@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Path
 
-from .schema import CreateBingoBoardRequest, UpdateBingoBoardRequest, BingoBoardResponse
+from .schema import BingoBoardRequest, BingoBoardResponse, UpdateBingoCountResponse, UserSelectedWordsResponse
 from .services import (
     CreateBingoBoard,
     GetBingoBoardByUserId,
@@ -13,9 +13,9 @@ from .services import (
 bingo_boards_router = APIRouter(prefix="/bingo/boards", tags=["bingo"])
 
 
-@bingo_boards_router.post("/", response_model=BingoBoardResponse, status_code=201)
+@bingo_boards_router.post("/", response_model=BingoBoardResponse)
 async def create_board(
-    data: CreateBingoBoardRequest,
+    data: BingoBoardRequest,
     bingo_boards: CreateBingoBoard = Depends(CreateBingoBoard),
 ):
     return await bingo_boards.execute(**data.model_dump())
@@ -31,23 +31,23 @@ async def get_board_by_user_id(
 
 @bingo_boards_router.put("/{user_id}", response_model=BingoBoardResponse)
 async def update_board_by_user_id(
-    data: UpdateBingoBoardRequest,
+    data: BingoBoardRequest,
     bingo_boards: UpdateBingoBoardByUserId = Depends(UpdateBingoBoardByUserId),
 ):
     return await bingo_boards.execute(**data.model_dump())
 
 
-@bingo_boards_router.put("/bingo_count/{user_id}", response_model=BingoBoardResponse)
+@bingo_boards_router.put("/bingo_count/{user_id}", response_model=UpdateBingoCountResponse)
 async def update_bingo_count(
-    user_id: int = Path(..., title="유저 ID", ge=1),
+    user_id: int = Path(..., title="유저 ID", ge=0),
     bingo_boards: UpdateBingoCount = Depends(UpdateBingoCount),
 ):
     return await bingo_boards.execute(user_id)
 
 
-@bingo_boards_router.get("/selected_words/{user_id}")
+@bingo_boards_router.get("/selected_words/{user_id}", response_model=UserSelectedWordsResponse)
 async def get_user_selected_words(
-    user_id: int = Path(..., title="유저 ID", ge=1),
+    user_id: int = Path(..., title="유저 ID", ge=0),
     bingo_boards: GetUserSelectedWords = Depends(GetUserSelectedWords),
-) -> list[str]:
+):
     return await bingo_boards.execute(user_id)
