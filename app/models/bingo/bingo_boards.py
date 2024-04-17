@@ -26,7 +26,7 @@ class BingoBoards(Base):
 
     @classmethod
     async def create(cls, session: AsyncSession, user_id: int, board_data: dict):
-        user = await cls.get_board_by_userid(session, user_id)
+        user = await session.get(cls, user_id)
         if user:
             raise ValueError(f"{user_id} 의 빙고판은 이미 존재합니다.")
         new_status = BingoBoards(user_id=user_id, board_data=board_data)
@@ -46,8 +46,6 @@ class BingoBoards(Base):
     @classmethod
     async def update_board_by_userid(cls, session: AsyncSession, user_id: int, board_data: dict):
         board = await cls.get_board_by_userid(session, user_id)
-        if not board:
-            raise ValueError(f"{user_id} 의 빙고판이 존재하지 않습니다.")
 
         board = await cls.get_board_by_userid(session, user_id)
         board.board_data = board_data
@@ -58,8 +56,6 @@ class BingoBoards(Base):
     @classmethod
     async def update_bingo_count(cls, session: AsyncSession, user_id: int):
         board = await cls.get_board_by_userid(session, user_id)
-        if not board:
-            raise ValueError(f"{user_id} 의 빙고판이 존재하지 않습니다.")
 
         board_data = board.board_data
         bingo = 0
@@ -86,8 +82,6 @@ class BingoBoards(Base):
     @classmethod
     async def get_user_selected_words(cls, session: AsyncSession, user_id: int):
         board = await cls.get_board_by_userid(session, user_id)
-        if not board:
-            raise ValueError(f"{user_id} 의 빙고판이 존재하지 않습니다.")
 
         board_data = board.board_data
         selected_words = []
