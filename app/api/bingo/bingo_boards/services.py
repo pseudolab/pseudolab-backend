@@ -1,6 +1,6 @@
 from core.db import AsyncSessionDepends
 from models.bingo import BingoBoards
-from api.bingo.bingo_boards.schema import BingoBoardResponse, UpdateBingoCountResponse, UserSelectedWordsResponse
+from api.bingo.bingo_boards.schema import BingoBoardResponse, UpdateBingoCountResponse, UserSelectedWordsResponse, UpdateBingoStatusResponse
 
 
 class BaseBingoBoard:
@@ -51,3 +51,11 @@ class GetUserSelectedWords(BaseBingoBoard):
             return UserSelectedWordsResponse(selected_words=res, ok=True, message="선택한 단어 조회에 성공하였습니다.")
         except ValueError as e:
             return UserSelectedWordsResponse(ok=False, message=str(e))
+
+class UpdateBingoStatusBySelectedUser(BaseBingoBoard):
+    async def execute(self, send_user_id: int, receive_user_id: int) -> BingoBoards:
+        try:
+            res = await BingoBoards.update_bingo_status_by_selected_user(self.async_session, send_user_id, receive_user_id)
+            return UpdateBingoStatusResponse(**res.__dict__, ok=True, message="빙고판 상태 업데이트에 성공하였습니다.")
+        except ValueError as e:
+            return UpdateBingoStatusResponse(ok=False, message=str(e))

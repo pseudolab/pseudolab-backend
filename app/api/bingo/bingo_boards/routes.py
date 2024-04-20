@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends, Path
 
-from .schema import BingoBoardRequest, BingoBoardResponse, UpdateBingoCountResponse, UserSelectedWordsResponse
+from .schema import BingoBoardRequest, BingoBoardResponse, UpdateBingoCountResponse, UserSelectedWordsResponse, UpdateBingoStatusResponse
 from .services import (
     CreateBingoBoard,
     GetBingoBoardByUserId,
     UpdateBingoBoardByUserId,
     UpdateBingoCount,
     GetUserSelectedWords,
+    UpdateBingoStatusBySelectedUser,
 )
 
 
@@ -51,3 +52,11 @@ async def get_user_selected_words(
     bingo_boards: GetUserSelectedWords = Depends(GetUserSelectedWords),
 ):
     return await bingo_boards.execute(user_id)
+
+@bingo_boards_router.put("/bingo_status/{send_user_id}/{receive_user_id}", response_model=UpdateBingoStatusResponse)
+async def update_bingo_status(
+    send_user_id: int = Path(..., title="요청 유저 ID", ge=0),
+    receive_user_id: int = Path(..., title="대상 유저 ID", ge=0),
+    bingo_boards: UpdateBingoStatusBySelectedUser = Depends(UpdateBingoStatusBySelectedUser),
+):
+    return await bingo_boards.execute(send_user_id, receive_user_id)

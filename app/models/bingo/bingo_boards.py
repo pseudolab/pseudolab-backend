@@ -7,7 +7,7 @@ from sqlalchemy.ext.mutable import MutableDict
 
 from core.db import AsyncSession
 from models.base import Base
-
+from models.bingo.schema import BingoInteractionSchema
 
 class BingoBoards(Base):
     __tablename__ = "bingo_boards"
@@ -90,3 +90,31 @@ class BingoBoards(Base):
                 if board_data[str(i * 5 + j)]["selected"] == 1:
                     selected_words.append(board_data[str(i * 5 + j)]["value"])
         return selected_words
+
+    @classmethod
+    async def update_bingo_status_by_selected_user(cls, session: AsyncSession, send_user_id: int, receive_user_id: int) -> BingoInteractionSchema:
+        board = await cls.get_board_by_userid(session, send_user_id)
+        selected_words = await cls.get_user_selected_words(session, receive_user_id)
+        board_data = board.board_data
+        update_words = []
+
+        for board_item in board_data.values():
+            if board_item["value"] in selected_words:
+                board_item["status"] = 1
+                update_words.append(board_item["value"])
+                selected_words.remove(board_item["value"])
+            
+            if not selected_words:
+                break
+
+        await cls.update_board_by_userid(session, send_user_id, board_data)
+        board = await cls.update_bingo_count(session, send_user_id)
+        
+        await session.flush()
+
+        return BingoInteractionSchema(
+            send_user_id=send_user_id,
+            receive_user_id=receive_user_id,
+            updated_words=update_words,
+            bingo_count=board.bingo_count
+        )

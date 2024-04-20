@@ -18,3 +18,9 @@ class BingoBoardSchema(BaseModel):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+class BingoInteractionSchema(BaseModel):
+    send_user_id: int
+    receive_user_id: int
+    updated_words: list[str]
+    bingo_count: int
