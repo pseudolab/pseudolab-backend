@@ -3,6 +3,7 @@ from zoneinfo import ZoneInfo
 
 from sqlalchemy.orm import mapped_column
 from sqlalchemy import Integer, DateTime, JSON
+from sqlalchemy.ext.mutable import MutableDict
 
 from core.db import AsyncSession
 from models.base import Base
@@ -12,7 +13,8 @@ class BingoBoards(Base):
     __tablename__ = "bingo_boards"
 
     user_id = mapped_column(Integer, primary_key=True, nullable=False)
-    board_data = mapped_column(JSON, nullable=False)
+    board_data = mapped_column(MutableDict.as_mutable(JSON), nullable=False)
+    
     bingo_count = mapped_column(Integer, default=0, nullable=False)
     created_at = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(ZoneInfo("Asia/Seoul")), nullable=False
@@ -46,9 +48,7 @@ class BingoBoards(Base):
     @classmethod
     async def update_board_by_userid(cls, session: AsyncSession, user_id: int, board_data: dict):
         board = await cls.get_board_by_userid(session, user_id)
-
-        board = await cls.get_board_by_userid(session, user_id)
-        board.board_data = board_data
+        board.board_data.update(board_data)
         await session.flush()
 
         return board
