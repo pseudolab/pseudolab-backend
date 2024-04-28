@@ -20,7 +20,6 @@ class MetaWord(Base):
     async def create(cls, session: AsyncSession, word_type: int, word: str) -> MetaWord:
         new_word = MetaWord(word_type=word_type, word=word)
         session.add(new_word)
-        await session.flush()
         created_word = await cls.get_word_by_id(session, new_word.word_id)
         return created_word
 

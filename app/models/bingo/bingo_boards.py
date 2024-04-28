@@ -33,7 +33,6 @@ class BingoBoards(Base):
             raise ValueError(f"{user_id} 의 빙고판은 이미 존재합니다.")
         new_status = BingoBoards(user_id=user_id, board_data=board_data)
         session.add(new_status)
-        await session.flush()
         created_status = await cls.get_board_by_userid(session, user_id)
         return created_status
 
@@ -49,7 +48,6 @@ class BingoBoards(Base):
     async def update_board_by_userid(cls, session: AsyncSession, user_id: int, board_data: dict):
         board = await cls.get_board_by_userid(session, user_id)
         board.board_data.update(board_data)
-        await session.flush()
 
         return board
 
@@ -76,7 +74,7 @@ class BingoBoards(Base):
             bingo += 1
 
         board.bingo_count = bingo
-        await session.flush()
+
         return board
 
     @classmethod
@@ -110,7 +108,6 @@ class BingoBoards(Base):
         await cls.update_board_by_userid(session, send_user_id, board_data)
         board = await cls.update_bingo_count(session, send_user_id)
         
-        await session.flush()
 
         return BingoInteractionSchema(
             send_user_id=send_user_id,
