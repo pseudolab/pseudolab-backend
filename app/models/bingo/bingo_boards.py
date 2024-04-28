@@ -91,8 +91,8 @@ class BingoBoards(Base):
 
     @classmethod
     async def update_bingo_status_by_selected_user(cls, session: AsyncSession, send_user_id: int, receive_user_id: int) -> BingoInteractionSchema:
-        board = await cls.get_board_by_userid(session, send_user_id)
-        selected_words = await cls.get_user_selected_words(session, receive_user_id)
+        board = await cls.get_board_by_userid(session, receive_user_id)
+        selected_words = await cls.get_user_selected_words(session, send_user_id)
         board_data = board.board_data
         update_words = []
 
@@ -105,9 +105,8 @@ class BingoBoards(Base):
             if not selected_words:
                 break
 
-        await cls.update_board_by_userid(session, send_user_id, board_data)
-        board = await cls.update_bingo_count(session, send_user_id)
-        
+        await cls.update_board_by_userid(session, receive_user_id, board_data)
+        board = await cls.update_bingo_count(session, receive_user_id)
 
         return BingoInteractionSchema(
             send_user_id=send_user_id,
