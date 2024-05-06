@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    environment:
+      DB_URL: mysql+aiomysql://root:root@db:3306/pseudolab
+    ports:
+      - "8000:8000"
+    command: >
+      /bin/sh -c "
+        alembic upgrade head;
+        python start.py
+      "
+
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:
