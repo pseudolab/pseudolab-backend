@@ -30,15 +30,15 @@ def upgrade() -> None:
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint("user_id"),
     )
-    op.create_table(
-        "bingo_interaction",
-        sa.Column("interaction_id", sa.Integer(), autoincrement=True, nullable=False),
-        sa.Column("word_id", sa.Integer(), nullable=False),
-        sa.Column("send_user_id", sa.Integer(), nullable=False),
-        sa.Column("receive_user_id", sa.Integer(), nullable=False),
-        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
-        sa.PrimaryKeyConstraint("interaction_id"),
-    )
+    # op.create_table(
+    #     "bingo_interaction",
+    #     sa.Column("interaction_id", sa.Integer(), autoincrement=True, nullable=False),
+    #     sa.Column("word_id", sa.Integer(), nullable=False),
+    #     sa.Column("send_user_id", sa.Integer(), nullable=False),
+    #     sa.Column("receive_user_id", sa.Integer(), nullable=False),
+    #     sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    #     sa.PrimaryKeyConstraint("interaction_id"),
+    # )
     # ### end Alembic commands ###
 
 
