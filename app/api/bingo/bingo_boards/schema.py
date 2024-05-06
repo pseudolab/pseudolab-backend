@@ -59,3 +59,9 @@ class UpdateBingoCountResponse(BaseSchema):
 
 class UserSelectedWordsResponse(BaseSchema):
     selected_words: Optional[list[str]] = Field(title="선택한 단어들", default=None)
+
+class UpdateBingoStatusResponse(BaseSchema):
+    send_user_id: Optional[int] = Field(title="요청 유저 ID", default=None)
+    receive_user_id: Optional[int] = Field(title="대상 유저 ID", default=None)
+    updated_words: Optional[list[str]] = Field(title="업데이트된 단어들", default=None)
+    bingo_count: Optional[int] = Field(title="업데이트된 빙고 갯수", default=None)

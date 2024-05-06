@@ -3,16 +3,18 @@ from zoneinfo import ZoneInfo
 
 from sqlalchemy.orm import mapped_column
 from sqlalchemy import Integer, DateTime, JSON
+from sqlalchemy.ext.mutable import MutableDict
 
 from core.db import AsyncSession
 from models.base import Base
-
+from models.bingo.schema import BingoInteractionSchema
 
 class BingoBoards(Base):
     __tablename__ = "bingo_boards"
 
     user_id = mapped_column(Integer, primary_key=True, nullable=False)
-    board_data = mapped_column(JSON, nullable=False)
+    board_data = mapped_column(MutableDict.as_mutable(JSON), nullable=False)
+    
     bingo_count = mapped_column(Integer, default=0, nullable=False)
     created_at = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(ZoneInfo("Asia/Seoul")), nullable=False
@@ -31,7 +33,6 @@ class BingoBoards(Base):
             raise ValueError(f"{user_id} 의 빙고판은 이미 존재합니다.")
         new_status = BingoBoards(user_id=user_id, board_data=board_data)
         session.add(new_status)
-        await session.flush()
         created_status = await cls.get_board_by_userid(session, user_id)
         return created_status
 
@@ -46,10 +47,7 @@ class BingoBoards(Base):
     @classmethod
     async def update_board_by_userid(cls, session: AsyncSession, user_id: int, board_data: dict):
         board = await cls.get_board_by_userid(session, user_id)
-
-        board = await cls.get_board_by_userid(session, user_id)
-        board.board_data = board_data
-        await session.flush()
+        board.board_data.update(board_data)
 
         return board
 
@@ -76,7 +74,7 @@ class BingoBoards(Base):
             bingo += 1
 
         board.bingo_count = bingo
-        await session.flush()
+
         return board
 
     @classmethod
@@ -90,3 +88,29 @@ class BingoBoards(Base):
                 if board_data[str(i * 5 + j)]["selected"] == 1:
                     selected_words.append(board_data[str(i * 5 + j)]["value"])
         return selected_words
+
+    @classmethod
+    async def update_bingo_status_by_selected_user(cls, session: AsyncSession, send_user_id: int, receive_user_id: int) -> BingoInteractionSchema:
+        board = await cls.get_board_by_userid(session, receive_user_id)
+        selected_words = await cls.get_user_selected_words(session, send_user_id)
+        board_data = board.board_data
+        update_words = []
+
+        for board_item in board_data.values():
+            if board_item["value"] in selected_words:
+                board_item["status"] = 1
+                update_words.append(board_item["value"])
+                selected_words.remove(board_item["value"])
+            
+            if not selected_words:
+                break
+
+        await cls.update_board_by_userid(session, receive_user_id, board_data)
+        board = await cls.update_bingo_count(session, receive_user_id)
+
+        return BingoInteractionSchema(
+            send_user_id=send_user_id,
+            receive_user_id=receive_user_id,
+            updated_words=update_words,
+            bingo_count=board.bingo_count
+        )
