@@ -4,10 +4,11 @@ on:
   push:
     branches:
       - feature/cd
+    workflow_dispatch:
 
 jobs:
   build:
-    runs-on: Windows
+    runs-on: ubuntu
 
     steps:
       - name: Check out the repository
