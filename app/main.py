@@ -9,6 +9,7 @@ from starlette.middleware.cors import CORSMiddleware
 async def lifespan(app: FastAPI):
     # 서버 시작 전 초기화 단계 작성
     db.initialize()
+    await db.create_database()
     yield
     # Clean up the ML models and release the resources
 
