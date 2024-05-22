@@ -16,13 +16,10 @@ COPY pyproject.toml poetry.lock* .
 RUN poetry config virtualenvs.create false && \
     poetry install --no-interaction --no-ansi --no-dev
 
-# For Dev
-RUN apt update && apt install -y vim git
-
 # Copy the rest of the project files to the container
 COPY . .
 
 WORKDIR /workspace/app
 
-# The default command to run the app using uvicorn
+# The default command to run the bash
 CMD ["bash"]
