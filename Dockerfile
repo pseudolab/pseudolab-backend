@@ -7,8 +7,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # Install Poetry for managing dependencies
-RUN pip install --upgrade pip && \
-    pip install poetry
+RUN pip install poetry
 
 # Copy only the dependencies specification to the container
 COPY pyproject.toml poetry.lock* .
