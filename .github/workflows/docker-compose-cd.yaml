@@ -1,14 +1,14 @@
-name: Docker Compose CI
+name: Docker Compose CD
 
 on:
   push:
     branches:
-      - feature/cd
+      - main
     workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu
+    runs-on: self-hosted
 
     steps:
       - name: Check out the repository
