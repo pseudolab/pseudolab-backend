@@ -14,7 +14,7 @@ from .services import (
 bingo_boards_router = APIRouter(prefix="/bingo/boards", tags=["bingo"])
 
 
-@bingo_boards_router.post("/", response_model=BingoBoardResponse)
+@bingo_boards_router.post("", response_model=BingoBoardResponse)
 async def create_board(
     data: BingoBoardRequest,
     bingo_boards: CreateBingoBoard = Depends(CreateBingoBoard),
