@@ -3,7 +3,7 @@ name: Docker Compose CD
 on:
   push:
     branches:
-      - main
+      - feature/cd
     workflow_dispatch:
 
 jobs:
@@ -24,9 +24,21 @@ jobs:
           docker compose -f docker-compose.yaml down
 
       - name: Build and push Docker images
+        env:
+          DB_ROOT: ${{ secrets.DB_ROOT }}
+          DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_DATABASE: ${{ secrets.DB_DATABASE }}
         run: |
           docker compose -f docker-compose.yaml build
 
       - name: Run Docker Compose
+        env:
+          DB_ROOT: ${{ secrets.DB_ROOT }}
+          DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_DATABASE: ${{ secrets.DB_DATABASE }}
         run: |
           docker compose -f docker-compose.yaml up -d

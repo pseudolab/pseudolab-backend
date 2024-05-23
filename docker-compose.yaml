@@ -6,9 +6,10 @@ services:
       context: .
       dockerfile: Dockerfile
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
-      DB_URL: mysql+aiomysql://root:root@db:3306/pseudolab
+      DB_URL: mysql+aiomysql://${DB_ROOT}:${DB_ROOT_PASSWORD}@db:3306/${DB_DATABASE}
     ports:
       - "8000:8000"
     command: >
@@ -20,9 +21,17 @@ services:
   db:
     image: mysql:latest
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
     volumes:
       - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysql -u ${DB_USER} -p${DB_PASSWORD} -e 'SHOW DATABASES LIKE \"pseudolab\";'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   mysql-data:
