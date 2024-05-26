@@ -3,10 +3,11 @@ from pydantic import BaseModel, ConfigDict
 
 
 class BoardSchema(BaseModel):
+    board_id: int
     title: str
     content: str
     password: str
-    created_at: datetime
-    updated_at: datetime
+    created_at: int
+    updated_at: int
 
     model_config = ConfigDict(from_attributes=True)
