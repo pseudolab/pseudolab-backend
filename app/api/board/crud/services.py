@@ -60,3 +60,18 @@ class UpdateBoardByBoardId(BaseBoard):
             )
         except ValueError as e:
             return BoardResponse(ok=False, message=str(e))
+
+
+class DeleteBoardByBoardId(BaseBoard):
+    async def execute(self, board_id: int, password: str) -> BoardResponse:
+        try:
+            deleted_board = await Boards.delete_board_by_board_id(self.async_session, board_id, password)
+            return BoardResponse(
+                board_id=deleted_board.board_id,
+                title=deleted_board.title,
+                content=deleted_board.content,
+                ok=True,
+                message="Board deleted successfully.",
+            )
+        except ValueError as e:
+            return BoardResponse(ok=False, message=str(e))

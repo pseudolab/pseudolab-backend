@@ -34,23 +34,6 @@ class Boards(Base):
         await session.refresh(new_board)
         return new_board
 
-    # @classmethod
-    # async def get_board_by_board_id(cls, session: AsyncSession, board_id: int, password: str):
-    #     res = await session.get(cls, board_id, password)
-    #     if not res:
-    #         raise ValueError(f"{board_id} 게시판이 존재하지 않습니다.")
-    #
-    #     return res
-    async def get_board_by_board_id(cls, session: AsyncSession, board_id: int):
-        try:
-            result = await session.execute(select(cls).where(cls.board_id == board_id))
-            board = result.scalars().first()
-            if not board:
-                raise ValueError("Board ID does not exist")
-            return board
-        except NoResultFound:
-            raise ValueError(f"Board ID {board_id} does not exist.")
-
     @classmethod
     async def get_board_by_board_id_with_password(cls, session: AsyncSession, board_id: int, password: str):
         board = await session.get(cls, board_id)
@@ -60,13 +43,16 @@ class Boards(Base):
     async def update_board_by_board_id(
         cls, session: AsyncSession, board_id: int, title: str, content: str, password: str
     ):
-        # board = await cls.get_board_by_board_id(session, board_id, password)
-        # board.board_data.update(title, content)
-        #
-        # return board
         board = await cls.get_board_by_board_id_with_password(session, board_id, password)
         board.title = title
         board.content = content
         await session.commit()
         await session.refresh(board)
+        return board
+
+    @classmethod
+    async def delete_board_by_board_id(cls, session: AsyncSession, board_id: int, password: str):
+        board = await cls.get_board_by_board_id_with_password(session, board_id, password)
+        await session.delete(board)
+        await session.commit()
         return board

@@ -8,6 +8,7 @@ from .services import (
     CreateBoard,
     GetBoardByBoardId,
     UpdateBoardByBoardId,
+    DeleteBoardByBoardId,
 )
 
 
@@ -38,3 +39,12 @@ async def update_board_by_board_id(
     boards: UpdateBoardByBoardId = Depends(UpdateBoardByBoardId),
 ):
     return await boards.execute(board_id, **data.model_dump())
+
+
+@boards_router.delete("/{board_id}", response_model=BoardResponse)
+async def update_board_by_board_id(
+    board_id: int = Path(..., title="Board ID", ge=1),
+    password: str = Query(..., description="Password to delete the board"),
+    boards: DeleteBoardByBoardId = Depends(DeleteBoardByBoardId),
+):
+    return await boards.execute(board_id, password)
