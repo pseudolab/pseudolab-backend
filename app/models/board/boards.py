@@ -12,8 +12,8 @@ class Boards(Base):
     __tablename__ = "boards"
 
     board_id = mapped_column(Integer, primary_key=True, nullable=False)
-    title = mapped_column(String, nullable=False)
-    content = mapped_column(String, nullable=False)
+    title = mapped_column(String(255), nullable=False)
+    content = mapped_column(String(1024), nullable=False)
     password = mapped_column(Integer, nullable=False)
     created_at = mapped_column(
         Integer, default=lambda: int(datetime.now(ZoneInfo("Asia/Seoul")).timestamp() * 1000), nullable=False

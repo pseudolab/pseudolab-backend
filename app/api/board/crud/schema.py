@@ -6,9 +6,12 @@ from core.base_schema import BaseSchema
 
 class BoardRequest(BaseModel):
     board_id: int
+    title: str
+    content: str
+    password: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class BoardResponse(BaseSchema):
