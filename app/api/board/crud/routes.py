@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Path
+from fastapi import APIRouter, Depends, Path, Query
 
 from .schema import (
     BoardResponse,
@@ -24,9 +24,9 @@ async def create_board(
 
 @boards_router.get("/{board_id}", response_model=BoardResponse)
 async def get_board_by_board_id(
-    board_id: int = Path(..., title="게시판 ID", ge=1),
+    board_id: int = Path(..., title="Board ID", ge=1),
+    password: str = Query(..., description="Password to access the board"),
     boards: GetBoardByBoardId = Depends(GetBoardByBoardId),
-    password: int = "0000",
 ):
     return await boards.execute(board_id, password)
 
@@ -34,6 +34,7 @@ async def get_board_by_board_id(
 @boards_router.put("/{board_id}", response_model=BoardResponse)
 async def update_board_by_board_id(
     data: BoardRequest,
+    board_id: int = Path(..., title="Board ID", ge=1),
     boards: UpdateBoardByBoardId = Depends(UpdateBoardByBoardId),
 ):
     return await boards.execute(**data.model_dump())

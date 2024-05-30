@@ -14,7 +14,7 @@ class Boards(Base):
     board_id = mapped_column(Integer, primary_key=True, nullable=False)
     title = mapped_column(String(255), nullable=False)
     content = mapped_column(String(1024), nullable=False)
-    password = mapped_column(Integer, nullable=False)
+    password = mapped_column(String(4), nullable=False)
     created_at = mapped_column(
         Integer, default=lambda: int(datetime.now(ZoneInfo("Asia/Seoul")).timestamp() * 1000), nullable=False
     )
@@ -26,7 +26,7 @@ class Boards(Base):
     )
 
     @classmethod
-    async def create(cls, session: AsyncSession, board_id: int, title: str, content: str, password: int):
+    async def create(cls, session: AsyncSession, board_id: int, title: str, content: str, password: str):
         board = await session.get(cls, board_id)
         if board:
             raise ValueError(f"{board_id} 게시판 이미 존재.")
@@ -36,7 +36,7 @@ class Boards(Base):
         return created_status
 
     @classmethod
-    async def get_board_by_board_id(cls, session: AsyncSession, board_id: int, password: int):
+    async def get_board_by_board_id(cls, session: AsyncSession, board_id: int, password: str):
         res = await session.get(cls, board_id, password)
         if not res:
             raise ValueError(f"{board_id} 게시판이 존재하지 않습니다.")
@@ -46,7 +46,7 @@ class Boards(Base):
     # 게시판 글 수정시에는 패스워드 다시 입력받지 않는 것으로?
     @classmethod
     async def update_board_by_board_id(
-        cls, session: AsyncSession, board_id: int, title: str, content: str, password: int
+        cls, session: AsyncSession, board_id: int, title: str, content: str, password: str
     ):
         board = await cls.get_board_by_board_id(session, board_id, password)
         board.board_data.update(title, content)
