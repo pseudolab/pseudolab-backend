@@ -23,8 +23,8 @@ async def create_board(
 
 
 @boards_router.get("/{board_id}", response_model=BoardResponse)
-async def get_board_by_board_id(
-    board_id: int = Path(..., title="Board ID", ge=1),
+async def get_board_by_board_id_with_password(
+    board_id: int = Path(..., title="board_id ID", ge=1),
     password: str = Query(..., description="Password to access the board"),
     boards: GetBoardByBoardId = Depends(GetBoardByBoardId),
 ):
@@ -37,4 +37,4 @@ async def update_board_by_board_id(
     board_id: int = Path(..., title="Board ID", ge=1),
     boards: UpdateBoardByBoardId = Depends(UpdateBoardByBoardId),
 ):
-    return await boards.execute(**data.model_dump())
+    return await boards.execute(board_id, **data.model_dump())
