@@ -1,13 +1,15 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
+import random
 
 from sqlalchemy.orm import mapped_column
-from sqlalchemy import Integer, DateTime, JSON
+from sqlalchemy import Integer, DateTime, JSON, select
 from sqlalchemy.ext.mutable import MutableDict
 
 from core.db import AsyncSession
 from models.base import Base
 from models.bingo.schema import BingoInteractionSchema
+from models.user import BingoUser
 
 class BingoBoards(Base):
     __tablename__ = "bingo_boards"
@@ -114,3 +116,18 @@ class BingoBoards(Base):
             updated_words=update_words,
             bingo_count=board.bingo_count
         )
+    
+    @classmethod
+    async def get_bingo_event_users(cls, session: AsyncSession, bingo_count: int, event_users_count: int) -> list:
+        query = select(cls).filter(cls.bingo_count >= bingo_count)
+        result = await session.execute(query)
+        bingo_event_users = [board.user_id for board in result.scalars().all()]
+        
+        if len(bingo_event_users) < event_users_count:
+            raise ValueError(f"{bingo_count} 이상의 빙고를 달성한 {event_users_count} 명의 유저가 없습니다.")
+        
+        random_select_users = random.sample(bingo_event_users, event_users_count)
+        selected_users = [await BingoUser.get_user_by_id(session, user_id) for user_id in random_select_users]
+        bingo_event_users_name = [user.username for user in selected_users]
+        
+        return bingo_event_users_name
