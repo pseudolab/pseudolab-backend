@@ -18,9 +18,10 @@ comments_router = APIRouter(prefix="/comment", tags=["comment"])
 @comments_router.post("", response_model=BoardCommentResponse)
 async def create_board_comment(
     data: BoardCommentRequest,
+    board_id: int = Path(..., title="Board ID", ge=1),
     comments: CreateBoardComment = Depends(CreateBoardComment),
 ):
-    return await comments.execute(**data.model_dump())
+    return await comments.execute(board_id, **data.model_dump())
 
 
 @comments_router.get("/{board_id}/{comment_id}", response_model=BoardCommentResponse)

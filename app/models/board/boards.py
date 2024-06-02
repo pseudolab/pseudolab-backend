@@ -37,7 +37,7 @@ class Boards(Base):
 
     @classmethod
     async def get_board_by_board_id_with_password(cls, session: AsyncSession, board_id: int, password: str):
-        board = await session.get(cls, board_id, password)
+        board = await session.get(cls, board_id)
         return board
 
     @classmethod
