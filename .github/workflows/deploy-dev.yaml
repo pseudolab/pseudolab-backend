@@ -1,20 +1,20 @@
-name: Docker Compose CD
+name: Deploy development server
 
 on:
   push:
     branches:
-      - feature/cd
+      - dev
     workflow_dispatch:
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: dev
 
     steps:
       - name: Check out the repository
         uses: actions/checkout@v2
         with:
-          ref: feature/cd
+          ref: dev
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
