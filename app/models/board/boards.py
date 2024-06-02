@@ -1,7 +1,7 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import mapped_column, relationship
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy import Integer, String, BigInteger
 
@@ -25,6 +25,7 @@ class Boards(Base):
         onupdate=lambda: int(datetime.now(ZoneInfo("Asia/Seoul")).timestamp() * 1000),
         nullable=False,
     )
+    comments = relationship("Comments", back_populates="board", cascade="all, delete-orphan")
 
     @classmethod
     async def create(cls, session: AsyncSession, title: str, content: str, password: str):
@@ -36,7 +37,7 @@ class Boards(Base):
 
     @classmethod
     async def get_board_by_board_id_with_password(cls, session: AsyncSession, board_id: int, password: str):
-        board = await session.get(cls, board_id)
+        board = await session.get(cls, board_id, password)
         return board
 
     @classmethod

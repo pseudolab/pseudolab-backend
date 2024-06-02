@@ -11,7 +11,7 @@ class BaseBoard:
 
 
 class CreateBoard(BaseBoard):
-    async def execute(self, title: str, content: str, password: int) -> Boards:
+    async def execute(self, title: str, content: str, password: int) -> BoardResponse:
         try:
             board = await Boards.create(self.async_session, title, content, password)
             return BoardResponse(
@@ -26,7 +26,7 @@ class CreateBoard(BaseBoard):
 
 
 class GetBoardByBoardId(BaseBoard):
-    async def execute(self, board_id: int, password: str) -> Boards:
+    async def execute(self, board_id: int, password: str) -> BoardResponse:
         try:
             board = await Boards.get_board_by_board_id_with_password(self.async_session, board_id, password)
             if board.password != password:
@@ -43,7 +43,7 @@ class GetBoardByBoardId(BaseBoard):
 
 
 class UpdateBoardByBoardId(BaseBoard):
-    async def execute(self, board_id: int, title: str, content: str, password: int) -> Boards:
+    async def execute(self, board_id: int, title: str, content: str, password: int) -> BoardResponse:
         try:
             board = await Boards.get_board_by_board_id_with_password(self.async_session, board_id, password)
             if board.password != password:
