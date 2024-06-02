@@ -1,1 +1,1 @@
-docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=root -d -p 3306:3306 mysql:latest
+docker run --name mysql-container -e LC_ALL=C.UTF-8 -e MYSQL_ROOT_PASSWORD=root -d -p 3306:3306 mysql:latest --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
