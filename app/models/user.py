@@ -36,6 +36,13 @@ class BingoUser(Base):
             raise ValueError(f"{username} 의 빙고 유저가 존재하지 않습니다.")
         return user
 
+    @classmethod
+    async def get_user_by_id(cls, session: AsyncSession, user_id: int):
+        res = await session.get(cls, user_id)
+        if not res:
+            raise ValueError(f"{user_id} 의 빙고 유저가 존재하지 않습니다.")
+        return res
+
 
 class User(Base):
     __tablename__ = "user"
