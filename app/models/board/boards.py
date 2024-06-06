@@ -89,3 +89,13 @@ class Boards(Base):
             result = await session.execute(select(cls).options(joinedload(cls.comments)).distinct())
             boards = result.unique().scalars().all()
             return boards
+
+    @classmethod
+    async def update_like_count(cls, session: AsyncSession, board_id: int, increment: bool = True):
+        board = await session.get(cls, board_id)
+        if not board:
+            raise ValueError(f"Board with ID {board_id} does not exist.")
+        board.like_count = board.like_count + 1 if increment else max(0, board.like_count - 1)
+        await session.commit()
+        await session.refresh(board)
+        return board

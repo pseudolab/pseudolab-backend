@@ -1,6 +1,7 @@
 from typing import Optional, List
 from pydantic import BaseModel, Field, field_validator
 from core.base_schema import BaseSchema
+from api.board.comment.schema import BoardCommentResponse
 
 
 class BoardRequest(BaseModel):
@@ -35,6 +36,7 @@ class BoardResponse(BaseSchema):
     created_at: Optional[int] = Field(title="생성일", default=None)
     view_count: Optional[int] = Field(title="조회수", default=None)
     contents: Optional[str] = Field(title="내용", default=None)
+    comment_list: List[BoardCommentResponse]
 
 
 class BoardListItemResponse(BaseSchema):
