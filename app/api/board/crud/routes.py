@@ -4,6 +4,7 @@ from .schema import (
     BoardResponse,
     BoardListResponse,
     BoardRequest,
+    BoardUpdateRequest,
 )
 from .services import (
     CreateBoard,
@@ -25,18 +26,24 @@ async def create_board(
     return await boards.execute(**data.model_dump())
 
 
+@boards_router.get("/all", response_model=BoardListResponse)
+async def get_all_boards(
+    boards: GetAllBoards = Depends(GetAllBoards),
+):
+    return await boards.execute()
+
+
 @boards_router.get("/{board_id}", response_model=BoardResponse)
-async def get_board_by_board_id_with_password(
+async def get_board_by_board_id(
     board_id: int = Path(..., title="Board ID", ge=1),
-    password: str = Query(..., description="Password to access the board"),
     boards: GetBoardByBoardId = Depends(GetBoardByBoardId),
 ):
-    return await boards.execute(board_id, password)
+    return await boards.execute(board_id)
 
 
 @boards_router.put("/{board_id}", response_model=BoardResponse)
 async def update_board_by_board_id(
-    data: BoardRequest,
+    data: BoardUpdateRequest,
     board_id: int = Path(..., title="Board ID", ge=1),
     boards: UpdateBoardByBoardId = Depends(UpdateBoardByBoardId),
 ):
@@ -50,10 +57,3 @@ async def delete_board_by_board_id(
     boards: DeleteBoardByBoardId = Depends(DeleteBoardByBoardId),
 ):
     return await boards.execute(board_id, password)
-
-
-@boards_router.get("/all", response_model=BoardListResponse)
-async def get_all_boards(
-    boards: GetAllBoards = Depends(GetAllBoards),
-):
-    return await boards.execute()

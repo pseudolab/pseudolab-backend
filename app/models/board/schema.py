@@ -9,7 +9,7 @@ class BoardSchema(BaseModel):
     view_count: int
     comment_count: int
     like_count: int
-    content: str
+    contents: str
     password: str
     created_at: int
     updated_at: int
@@ -20,7 +20,7 @@ class BoardSchema(BaseModel):
 class BoardCommentSchema(BaseModel):
     board_id: int
     comment_id: int
-    content: str
+    contents: str
     password: str
     created_at: int
     updated_at: int

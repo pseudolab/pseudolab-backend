@@ -2,6 +2,7 @@ from core.db import AsyncSessionDepends
 from models.board import Boards, Comments
 from api.board.comment.schema import (
     BoardCommentResponse,
+    BoardCommentListResponse,
 )
 
 
@@ -11,14 +12,16 @@ class BaseComment:
 
 
 class CreateBoardComment(BaseComment):
-    async def execute(self, board_id: int, content: str, password: str) -> BoardCommentResponse:
+    async def execute(self, board_id: int, author: str, contents: str, password: str) -> BoardCommentResponse:
         try:
-            print(board_id, content, password)
-            res = await Comments.create(self.async_session, board_id, content, password)
+            print(board_id, contents, password)
+            res = await Comments.create(self.async_session, board_id, author, contents, password)
             return BoardCommentResponse(
                 comment_id=res.comment_id,
                 board_id=res.board_id,
-                content=res.content,
+                author=res.author,
+                contents=res.contents,
+                created_at=res.created_at,
                 ok=True,
                 message="Comment created successfully.",
             )
@@ -27,6 +30,21 @@ class CreateBoardComment(BaseComment):
 
 
 class GetCommentByCommentId(BaseComment):
+    async def execute(self, board_id: int, comment_id) -> BoardCommentResponse:
+        try:
+            comment = await Comments.get_comment_by_comment_id(self.async_session, board_id, comment_id)
+            return BoardCommentResponse(
+                comment_id=comment.comment_id,
+                board_id=comment.board_id,
+                contents=comment.contents,
+                ok=True,
+                message="Comment retrieved successfully.",
+            )
+        except ValueError as e:
+            return BoardCommentResponse(ok=False, message=str(e))
+
+
+class GetCommentByCommentIdWithPassword(BaseComment):
     async def execute(self, board_id: int, comment_id, password: str) -> BoardCommentResponse:
         try:
             comment = await Comments.get_comment_by_comment_id_with_password(
@@ -37,7 +55,7 @@ class GetCommentByCommentId(BaseComment):
             return BoardCommentResponse(
                 comment_id=comment.comment_id,
                 board_id=comment.board_id,
-                content=comment.content,
+                contents=comment.contents,
                 ok=True,
                 message="Comment retrieved successfully.",
             )
@@ -46,7 +64,7 @@ class GetCommentByCommentId(BaseComment):
 
 
 class UpdateCommentByCommentId(BaseComment):
-    async def execute(self, board_id: int, comment_id: int, content: str, password: str) -> BoardCommentResponse:
+    async def execute(self, board_id: int, comment_id: int, contents: str, password: str) -> BoardCommentResponse:
         try:
             comment = await Comments.get_comment_by_comment_id_with_password(
                 self.async_session, board_id, comment_id, password
@@ -54,12 +72,12 @@ class UpdateCommentByCommentId(BaseComment):
             if comment.password != password:
                 raise BoardCommentResponse(ok=False, message="Incorrect password")
             updated_comment = await Comments.update_comment_by_comment_id(
-                self.async_session, board_id, comment_id, content, password
+                self.async_session, board_id, comment_id, contents, password
             )
             return BoardCommentResponse(
                 comment_id=updated_comment.comment_id,
                 board_id=updated_comment.board_id,
-                content=updated_comment.content,
+                contents=updated_comment.contents,
                 ok=True,
                 message="Comment updated successfully.",
             )
@@ -74,11 +92,37 @@ class DeleteCommentByCommentId(BaseComment):
                 self.async_session, board_id, comment_id, password
             )
             return BoardCommentResponse(
+                comment_id=deleted_comment.comment_id,
                 board_id=deleted_comment.board_id,
-                title=deleted_comment.title,
-                content=deleted_comment.content,
+                contents=deleted_comment.contents,
                 ok=True,
                 message="Comment deleted successfully.",
             )
         except ValueError as e:
             return BoardCommentResponse(ok=False, message=str(e))
+
+
+class GetAllComments(BaseComment):
+    async def execute(self, board_id: int) -> BoardCommentListResponse:
+        try:
+            comments = await Comments.get_board_all_comments(self.async_session, board_id=board_id)
+            comments_response = [
+                BoardCommentResponse(
+                    comment_id=comment.comment_id,
+                    board_id=comment.board_id,
+                    author=comment.author,
+                    contents=comment.contents,
+                    created_at=comment.created_at,
+                    ok=True,
+                    message="Comment retrieved successfully.",
+                )
+                for comment in comments
+            ]
+            return BoardCommentListResponse(
+                comments=comments_response,
+                all_count=len(comments_response),
+                ok=True,
+                message="All comments retrieved successfully.",
+            )
+        except Exception as e:
+            return BoardCommentListResponse(comments=[], all_count=0, ok=False, message=str(e))
