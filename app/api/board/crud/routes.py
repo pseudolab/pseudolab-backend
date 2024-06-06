@@ -14,7 +14,6 @@ from .services import (
     GetAllBoards,
 )
 
-
 boards_router = APIRouter(prefix="/board", tags=["board"])
 
 

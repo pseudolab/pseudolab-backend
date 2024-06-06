@@ -29,9 +29,7 @@ class Database:
             pool_pre_ping=True,
         )
         self.async_session_factory = async_sessionmaker(
-            bind=self.async_engine,
-            autoflush=False,
-            future=True,
+            bind=self.async_engine, autoflush=False, future=True, expire_on_commit=False, class_=AsyncSession
         )
         self.async_scoped_session = async_scoped_session(self.async_session_factory, scopefunc=current_task)
 
@@ -54,4 +52,5 @@ class Database:
 
 
 db = Database()
+db.initialize()
 AsyncSessionDepends = Annotated[AsyncSession, Depends(db.get_session)]

@@ -48,5 +48,5 @@ class BoardListItemResponse(BaseSchema):
 
 
 class BoardListResponse(BaseSchema):
-    boards: List[BoardResponse]
+    boards: List[BoardListItemResponse]
     all_count: int

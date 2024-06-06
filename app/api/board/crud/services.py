@@ -104,7 +104,7 @@ class GetAllBoards(BaseBoard):
         try:
             boards = await Boards.get_all_boards(self.async_session)
             boards_response = [
-                BoardResponse(
+                BoardListItemResponse(
                     board_id=board.board_id,
                     title=board.title,
                     author=board.author,

@@ -14,7 +14,6 @@ class BaseComment:
 class CreateBoardComment(BaseComment):
     async def execute(self, board_id: int, author: str, contents: str, password: str) -> BoardCommentResponse:
         try:
-            print(board_id, contents, password)
             res = await Comments.create(self.async_session, board_id, author, contents, password)
             return BoardCommentResponse(
                 comment_id=res.comment_id,

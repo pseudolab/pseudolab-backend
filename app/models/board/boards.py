@@ -1,11 +1,11 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from sqlalchemy.orm import mapped_column, relationship
+from sqlalchemy.orm import mapped_column, relationship, joinedload
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy import Integer, String, BigInteger, select
 
-from core.db import AsyncSession
+from core.db import AsyncSession, AsyncSessionDepends
 from models.base import Base
 
 
@@ -44,7 +44,7 @@ class Boards(Base):
         board = result.scalars().first()
         if not board:
             raise ValueError(f"Board with ID {board_id} does not exist.")
-        print("view update", view_update)
+        # FIXME : 수정 시에는 view count update 안되도록 설정
         if view_update:
             board.view_count += 1
         await session.commit()
@@ -82,6 +82,10 @@ class Boards(Base):
 
     @classmethod
     async def get_all_boards(cls, session: AsyncSession):
-        result = await session.execute(select(Boards))
-        boards = result.scalars().all()
-        return boards
+        # result = await session.execute(select(Boards))
+        # boards = result.scalars().all()
+        # return boards
+        async with session.begin():
+            result = await session.execute(select(cls).options(joinedload(cls.comments)).distinct())
+            boards = result.unique().scalars().all()
+            return boards
