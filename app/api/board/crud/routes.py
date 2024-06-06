@@ -12,6 +12,7 @@ from .services import (
     UpdateBoardByBoardId,
     DeleteBoardByBoardId,
     GetAllBoards,
+    GetPageBoards,
 )
 
 boards_router = APIRouter(prefix="/board", tags=["board"])
@@ -32,8 +33,17 @@ async def get_all_boards(
     return await boards.execute()
 
 
+@boards_router.get("/list", response_model=BoardListResponse)
+async def get_page_boards(
+    page: int = Query(1, ge=1, description="Page number"),
+    page_size: int = Query(10, ge=1, le=100, description="Number of boards per page"),
+    boards: GetPageBoards = Depends(GetPageBoards),
+):
+    return await boards.execute(page, page_size)
+
+
 @boards_router.get("/{board_id}", response_model=BoardResponse)
-async def get_board_by_board_id(
+async def get_all_boards(
     board_id: int = Path(..., title="Board ID", ge=1),
     boards: GetBoardByBoardId = Depends(GetBoardByBoardId),
 ):

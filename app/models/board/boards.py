@@ -91,6 +91,16 @@ class Boards(Base):
             return boards
 
     @classmethod
+    async def get_page_boards(cls, session: AsyncSession, offset: int, limit: int):
+        # async with session.begin():
+        #     result = await session.execute(select(cls).options(joinedload(cls.comments)).distinct())
+        #     boards = result.unique().scalars().all()
+        #     return boards
+        result = await session.execute(select(cls).options(joinedload(cls.comments)).offset(offset).limit(limit))
+        boards = result.unique().scalars().all()
+        return boards
+
+    @classmethod
     async def update_like_count(cls, session: AsyncSession, board_id: int, increment: bool = True):
         board = await session.get(cls, board_id)
         if not board:

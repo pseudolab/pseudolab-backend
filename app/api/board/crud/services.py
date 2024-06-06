@@ -143,6 +143,35 @@ class GetAllBoards(BaseBoard):
             return BoardListResponse(boards=[], all_count=0, ok=False, message=str(e))
 
 
+class GetPageBoards(BaseBoard):
+    async def execute(self, page: int, page_size: int) -> BoardListResponse:
+        try:
+            offset = (page - 1) * page_size
+            boards = await Boards.get_page_boards(self.async_session, offset, page_size)
+            boards_response = [
+                BoardListItemResponse(
+                    board_id=board.board_id,
+                    title=board.title,
+                    author=board.author,
+                    created_at=board.created_at,
+                    view_count=board.view_count,
+                    comment_count=len(board.comments),
+                    like_count=board.like_count,
+                    ok=True,
+                    message="Board retrieved successfully.",
+                ).dict()
+                for board in boards
+            ]
+            return BoardListResponse(
+                boards=boards_response,
+                all_count=len(boards_response),
+                ok=True,
+                message="All boards retrieved successfully.",
+            )
+        except Exception as e:
+            return BoardListResponse(boards=[], all_count=0, ok=False, message=str(e))
+
+
 class UpdateLikeCount(BaseBoard):
     async def execute(self, board_id: int, increment: bool) -> BoardResponse:
         try:
