@@ -2,6 +2,7 @@ from core.db import AsyncSessionDepends
 from models.board import Boards
 from api.board.crud.schema import (
     BoardResponse,
+    BoardListResponse,
 )
 
 
@@ -11,13 +12,15 @@ class BaseBoard:
 
 
 class CreateBoard(BaseBoard):
-    async def execute(self, title: str, content: str, password: int) -> BoardResponse:
+    async def execute(self, title: str, author: str, content: str, password: int) -> BoardResponse:
         try:
-            board = await Boards.create(self.async_session, title, content, password)
+            board = await Boards.create(self.async_session, title, author, content, password)
             return BoardResponse(
                 board_id=board.board_id,
                 title=board.title,
+                author=board.author,
                 content=board.content,
+                view_count=board.view_count,
                 ok=True,
                 message="Board created successfully.",
             )
@@ -35,6 +38,7 @@ class GetBoardByBoardId(BaseBoard):
                 board_id=board.board_id,
                 title=board.title,
                 content=board.content,
+                view_count=board.view_count,
                 ok=True,
                 message="Board retrieved successfully.",
             )
@@ -75,3 +79,27 @@ class DeleteBoardByBoardId(BaseBoard):
             )
         except ValueError as e:
             return BoardResponse(ok=False, message=str(e))
+
+
+class GetAllBoards(BaseBoard):
+    async def execute(self) -> BoardListResponse:
+        try:
+            boards = await Boards.get_all_boards(self.async_session)
+            boards_response = [
+                BoardResponse(
+                    board_id=board.board_id,
+                    title=board.title,
+                    content=board.content,
+                    ok=True,
+                    message="Board retrieved successfully.",
+                )
+                for board in boards
+            ]
+            return BoardListResponse(
+                boards=boards_response,
+                all_count=len(boards_response),
+                ok=True,
+                message="All boards retrieved successfully.",
+            )
+        except Exception as e:
+            return BoardListResponse(boards=[], all_count=0, ok=False, message=str(e))

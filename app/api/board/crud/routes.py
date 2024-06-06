@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Path, Query
 
 from .schema import (
     BoardResponse,
+    BoardListResponse,
     BoardRequest,
 )
 from .services import (
@@ -9,6 +10,7 @@ from .services import (
     GetBoardByBoardId,
     UpdateBoardByBoardId,
     DeleteBoardByBoardId,
+    GetAllBoards,
 )
 
 
@@ -48,3 +50,10 @@ async def delete_board_by_board_id(
     boards: DeleteBoardByBoardId = Depends(DeleteBoardByBoardId),
 ):
     return await boards.execute(board_id, password)
+
+
+@boards_router.get("/all", response_model=BoardListResponse)
+async def get_all_boards(
+    boards: GetAllBoards = Depends(GetAllBoards),
+):
+    return await boards.execute()
