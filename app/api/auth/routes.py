@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Path
 from api.auth.schema import LoginToken, LoginResponse, BingoUser
 from api.auth.services.social_login import SocialLoginDepends
-from api.auth.services.bingo_login import CreateBingoUser, GetBingoUserByName
+from api.auth.services.bingo_login import CreateBingoUser, GetBingoUserByName, GetBingoUserById
 
 auth_router = APIRouter(prefix="/auth")
 
@@ -15,6 +15,11 @@ async def bingo_sign_up(username: str, bingo_user: CreateBingoUser = Depends(Cre
 @auth_router.get("/bingo/get-user", response_model=BingoUser, description="빙고용 임시 유저 조회 API")
 async def bingo_get_user(username: str, bingo_user: GetBingoUserByName = Depends(GetBingoUserByName)):
     return await bingo_user.execute(username)
+
+
+@auth_router.get("/bingo/get-user/{user_id}", response_model=BingoUser, description="빙고용 임시 유저 조회 API")
+async def bingo_get_user(user_id: int, bingo_user: GetBingoUserById = Depends(GetBingoUserById)):
+    return await bingo_user.execute(user_id)
 
 
 @auth_router.get("/discord/login", description="Discord 로그인 URL 생성")

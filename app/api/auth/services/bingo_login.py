@@ -24,3 +24,12 @@ class GetBingoUserByName(BaseBingoUser):
             return BingoUserResponse(**user.__dict__, ok=True, message="빙고 유저 조회에 성공하였습니다.")
         except ValueError as e:
             return BingoUserResponse(ok=False, message=str(e))
+
+
+class GetBingoUserById(BaseBingoUser):
+    async def execute(self, user_id: int) -> BingoUser:
+        try:
+            user = await BingoUser.get_user_by_id(self.async_session, user_id)
+            return BingoUserResponse(**user.__dict__, ok=True, message="빙고 유저 조회에 성공하였습니다.")
+        except ValueError as e:
+            return BingoUserResponse(ok=False, message=str(e))
