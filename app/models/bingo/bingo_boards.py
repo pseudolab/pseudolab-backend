@@ -118,8 +118,8 @@ class BingoBoards(Base):
         )
     
     @classmethod
-    async def get_bingo_event_users(cls, session: AsyncSession, bingo_count: int, event_users_count: int) -> list:
         query = select(cls).filter(cls.bingo_count >= bingo_count)
+    async def get_bingo_event_users(cls, session: AsyncSession, bingo_count: int) -> list:
         result = await session.execute(query)
         bingo_event_users = [board.user_id for board in result.scalars().all()]
         

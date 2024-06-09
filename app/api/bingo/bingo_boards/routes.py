@@ -62,10 +62,9 @@ async def update_bingo_status(
 ):
     return await bingo_boards.execute(send_user_id, receive_user_id)
 
-@bingo_boards_router.get("/bingo_event_users/{bingo_count}/{event_users_count}", response_model=GetUserBingoEventUser)
+@bingo_boards_router.get("/bingo_event_users/{bingo_count}", response_model=GetUserBingoEventUser)
 async def get_bingo_event_users(
     bingo_count: int = Path(..., title="이벤트 조건 빙고 갯수", ge=1),
-    event_users_count: int = Path(..., title="이벤트 당첨 유저 인원", ge=1),
     bingo_boards: GetBingoEventUser = Depends(GetBingoEventUser),
 ):
-    return await bingo_boards.execute(bingo_count, event_users_count)
+    return await bingo_boards.execute(bingo_count)
