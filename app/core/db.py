@@ -36,7 +36,7 @@ class Database:
     async def create_database(self) -> None:
         if os.getenv("ENV") == "test":
             async with self.async_engine.begin() as conn:
-                await conn.run_sync(Base.metadata.drop_all)
+                # await conn.run_sync(Base.metadata.drop_all)
                 await conn.run_sync(Base.metadata.create_all)
 
     async def get_session(self) -> AsyncIterator[AsyncSession]:
@@ -52,5 +52,4 @@ class Database:
 
 
 db = Database()
-db.initialize()
 AsyncSessionDepends = Annotated[AsyncSession, Depends(db.get_session)]

@@ -148,6 +148,8 @@ class GetPageBoards(BaseBoard):
         try:
             offset = (page - 1) * page_size
             boards = await Boards.get_page_boards(self.async_session, offset, page_size)
+            all_boards = await Boards.get_all_boards(self.async_session)
+            print("all_boards", len(all_boards))
             boards_response = [
                 BoardListItemResponse(
                     board_id=board.board_id,
@@ -164,7 +166,7 @@ class GetPageBoards(BaseBoard):
             ]
             return BoardListResponse(
                 boards=boards_response,
-                all_count=len(boards_response),
+                all_count=len(all_boards),
                 ok=True,
                 message="All boards retrieved successfully.",
             )

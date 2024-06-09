@@ -23,7 +23,7 @@ async def create_board_comment(
 
 
 @comments_router.get("/{board_id}/all", response_model=BoardCommentListResponse)
-async def get_all_boards(
+async def get_all_board_comments(
     board_id: int = Path(..., title="Board ID", ge=1),
     boards: GetAllComments = Depends(GetAllComments),
 ):

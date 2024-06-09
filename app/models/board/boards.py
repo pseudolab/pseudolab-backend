@@ -82,20 +82,12 @@ class Boards(Base):
 
     @classmethod
     async def get_all_boards(cls, session: AsyncSession):
-        # result = await session.execute(select(Boards))
-        # boards = result.scalars().all()
-        # return boards
-        async with session.begin():
-            result = await session.execute(select(cls).options(joinedload(cls.comments)).distinct())
-            boards = result.unique().scalars().all()
-            return boards
+        result = await session.execute(select(cls).options(joinedload(cls.comments)).distinct())
+        boards = result.unique().scalars().all()
+        return boards
 
     @classmethod
     async def get_page_boards(cls, session: AsyncSession, offset: int, limit: int):
-        # async with session.begin():
-        #     result = await session.execute(select(cls).options(joinedload(cls.comments)).distinct())
-        #     boards = result.unique().scalars().all()
-        #     return boards
         result = await session.execute(select(cls).options(joinedload(cls.comments)).offset(offset).limit(limit))
         boards = result.unique().scalars().all()
         return boards

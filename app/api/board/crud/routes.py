@@ -33,6 +33,7 @@ async def get_all_boards(
     return await boards.execute()
 
 
+# TODO : Offset 아니라 Where 사용?
 @boards_router.get("/list", response_model=BoardListResponse)
 async def get_page_boards(
     page: int = Query(1, ge=1, description="Page number"),
@@ -43,7 +44,7 @@ async def get_page_boards(
 
 
 @boards_router.get("/{board_id}", response_model=BoardResponse)
-async def get_all_boards(
+async def get_board_by_board_id(
     board_id: int = Path(..., title="Board ID", ge=1),
     boards: GetBoardByBoardId = Depends(GetBoardByBoardId),
 ):
