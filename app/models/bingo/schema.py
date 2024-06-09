@@ -24,3 +24,8 @@ class BingoInteractionSchema(BaseModel):
     receive_user_id: int
     updated_words: list[str]
     bingo_count: int
+
+class BingoEventUserInfo(BaseModel):
+    rank: int
+    user_name: str
+    bingo_count: int

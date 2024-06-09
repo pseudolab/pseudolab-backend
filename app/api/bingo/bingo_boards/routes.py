@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Path
 
-from .schema import BingoBoardRequest, BingoBoardResponse, UpdateBingoCountResponse, UserSelectedWordsResponse, UpdateBingoStatusResponse
+from .schema import BingoBoardRequest, BingoBoardResponse, UpdateBingoCountResponse, UserSelectedWordsResponse, UpdateBingoStatusResponse, GetUserBingoEventUser
 from .services import (
     CreateBingoBoard,
     GetBingoBoardByUserId,
@@ -8,6 +8,7 @@ from .services import (
     UpdateBingoCount,
     GetUserSelectedWords,
     UpdateBingoStatusBySelectedUser,
+    GetBingoEventUser,
 )
 
 
@@ -60,3 +61,10 @@ async def update_bingo_status(
     bingo_boards: UpdateBingoStatusBySelectedUser = Depends(UpdateBingoStatusBySelectedUser),
 ):
     return await bingo_boards.execute(send_user_id, receive_user_id)
+
+@bingo_boards_router.get("/bingo_event_users/{bingo_count}", response_model=GetUserBingoEventUser)
+async def get_bingo_event_users(
+    bingo_count: int = Path(..., title="이벤트 조건 빙고 갯수", ge=1),
+    bingo_boards: GetBingoEventUser = Depends(GetBingoEventUser),
+):
+    return await bingo_boards.execute(bingo_count)
