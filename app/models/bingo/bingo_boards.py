@@ -1,14 +1,14 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
-import random
+import asyncio
 
 from sqlalchemy.orm import mapped_column
-from sqlalchemy import Integer, DateTime, JSON, select
+from sqlalchemy import Integer, DateTime, JSON, select, desc
 from sqlalchemy.ext.mutable import MutableDict
 
 from core.db import AsyncSession
 from models.base import Base
-from models.bingo.schema import BingoInteractionSchema
+from models.bingo.schema import BingoInteractionSchema, BingoEventUserInfo
 from models.user import BingoUser
 
 class BingoBoards(Base):
@@ -118,16 +118,21 @@ class BingoBoards(Base):
         )
     
     @classmethod
-        query = select(cls).filter(cls.bingo_count >= bingo_count)
     async def get_bingo_event_users(cls, session: AsyncSession, bingo_count: int) -> list:
+        query = select(cls).filter(cls.bingo_count >= bingo_count).order_by(desc(cls.bingo_count))
         result = await session.execute(query)
-        bingo_event_users = [board.user_id for board in result.scalars().all()]
+        bingo_event_users = [(board.user_id, board.bingo_count) for board in result.scalars().all()]
+
+        selected_users_info = await asyncio.gather(
+        *[BingoUser.get_user_by_id(session, user_id) for user_id, _ in bingo_event_users]
+    )
+        bingo_event_users_info = [
+            BingoEventUserInfo(
+                rank=idx,
+                user_name=user_info.username,
+                bingo_count=bingo_count
+            ) for idx, ((_, bingo_count), user_info) in enumerate(zip(bingo_event_users, selected_users_info), start=1)]
         
-        if len(bingo_event_users) < event_users_count:
-            raise ValueError(f"{bingo_count} 이상의 빙고를 달성한 {event_users_count} 명의 유저가 없습니다.")
-        
-        random_select_users = random.sample(bingo_event_users, event_users_count)
-        selected_users = [await BingoUser.get_user_by_id(session, user_id) for user_id in random_select_users]
-        bingo_event_users_name = [user.username for user in selected_users]
-        
-        return bingo_event_users_name
+        return bingo_event_users_info
+    
+
