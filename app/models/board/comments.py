@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 from sqlalchemy.orm import mapped_column, relationship
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy import Integer, String, BigInteger, ForeignKey, select
+from sqlalchemy import Integer, String, BigInteger, ForeignKey, select, desc
 
 from core.db import AsyncSession
 from models.base import Base
@@ -90,6 +90,6 @@ class Comments(Base):
         board = await session.get(Boards, board_id)
         if not board:
             raise HTTPException(status_code=404, detail="Board not found")
-        result = await session.execute(select(cls).where(cls.board_id == board_id))
+        result = await session.execute(select(cls).order_by(desc(cls.comment_id)).where(cls.board_id == board_id))
         comments = result.scalars().all()
         return comments

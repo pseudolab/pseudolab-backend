@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 from sqlalchemy.orm import mapped_column, relationship, joinedload
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy import Integer, String, BigInteger, select
+from sqlalchemy import Integer, String, BigInteger, select, desc
 
 from core.db import AsyncSession, AsyncSessionDepends
 from models.base import Base
@@ -88,7 +88,9 @@ class Boards(Base):
 
     @classmethod
     async def get_page_boards(cls, session: AsyncSession, offset: int, limit: int):
-        result = await session.execute(select(cls).options(joinedload(cls.comments)).offset(offset).limit(limit))
+        result = await session.execute(
+            select(cls).order_by(desc(cls.board_id)).options(joinedload(cls.comments)).offset(offset).limit(limit)
+        )
         boards = result.unique().scalars().all()
         return boards
 
