@@ -1,0 +1,48 @@
+name: Deploy development server
+
+on:
+  push:
+    branches:
+      - dev
+    workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: dev
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+        with:
+          ref: dev
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Set up pseudolab config
+        run: |
+          sh -c "${{ secrets.RUN_SCRIPT }}"
+
+      - name: Shut down Docker Compose
+        run: |
+          docker compose -f docker-compose.yaml down
+
+      - name: Build and push Docker images
+        env:
+          DB_ROOT: ${{ secrets.DB_ROOT }}
+          DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_DATABASE: ${{ secrets.DB_DATABASE }}
+        run: |
+          docker compose -f docker-compose.yaml build
+
+      - name: Run Docker Compose
+        env:
+          DB_ROOT: ${{ secrets.DB_ROOT }}
+          DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_DATABASE: ${{ secrets.DB_DATABASE }}
+        run: |
+          docker compose -f docker-compose.yaml up -d
