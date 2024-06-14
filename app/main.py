@@ -28,3 +28,8 @@ app.add_middleware(
 @app.get("/")
 def hc():
     return "server is running"
+
+
+@app.get("/reset-db/zozo")
+async def reset_db():
+    await db.reset_database()
