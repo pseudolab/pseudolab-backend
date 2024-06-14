@@ -28,7 +28,7 @@ class BingoInteraction(Base):
         return new_interaction
 
     @classmethod
-    async def get_user_latest_interaction(cls, session: AsyncSession, user_id):
+    async def get_user_latest_interaction(cls, session: AsyncSession, user_id: int):
         res = await session.execute(
             select(cls).where(cls.receive_user_id == user_id).order_by(cls.created_at.desc()).limit(1)
         )
