@@ -30,6 +30,6 @@ def hc():
     return "server is running"
 
 
-@app.get("/reset-db/zozo")
-async def reset_db():
-    await db.reset_database()
+# @app.get("/reset-db/zozo")
+# async def reset_db():
+#     await db.reset_database()
