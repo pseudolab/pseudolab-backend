@@ -48,11 +48,6 @@ async def oauth2_login(request: Request, social_login: SocialLoginDepends) -> Lo
     return await social_login.google_login_redirect(code)
 
 
-# @auth_router.get("/google/redirect", description="Google 로그인 redirect")
-# async def oauth2_login(login_token: LoginToken, social_login: SocialLoginDepends) -> LoginResponse:
-#     return await social_login.google_login_redirect(login_token.code)
-
-
 @auth_router.get("/github/login", description="Github 로그인 URL 생성")
 async def oauth2_login(social_login: SocialLoginDepends) -> LoginUrl:
     return await social_login.github_login()
