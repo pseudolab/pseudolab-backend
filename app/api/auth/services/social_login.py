@@ -9,6 +9,7 @@ from typing import Annotated
 from enum import Enum, auto
 from api.auth.schema import LoginState, LoginResponse, LoginUrl
 from urllib.parse import parse_qs
+from api.auth.services.jwts import create_access_token, create_refresh_token
 
 REDIRECT_URI_DISCORD = os.getenv("REDIRECT_URI_DISCORD")
 REDIRECT_URI_GOOGLE = os.getenv("REDIRECT_URI_GOOGLE")
@@ -72,18 +73,26 @@ class SocialLogin:
 
             # 이메일로 유저 가입 유무 체크
             find_user = await User.get_user_by_email(self.session, email)
+            access_token_jwt = ""
+            refresh_token_jwt = ""
             if not find_user:
                 message = "회원 가입이 필요합니다."
                 login_state = LoginState.sign_up
-                access_token = ""
+            else:
+                user_id = find_user.user_id
+                access_token_jwt, access_expires = create_access_token(data={"sub": user_id})
+                refresh_token_jwt, refresh_expires = create_refresh_token(data={"sub": user_id})
+                await User.update_tokens(
+                    self.session, user_id, access_token_jwt, refresh_token_jwt, access_expires, refresh_expires
+                )
 
         # DB 체크해서 로그인, 회원가입 상태 체크
         return LoginResponse(
             ok=True,
             message=message,
             login_state=login_state,
-            access_token=access_token,
-            refresh_token="",
+            access_token=access_token_jwt,
+            refresh_token=refresh_token_jwt,
         )
 
     async def google_login(self) -> LoginUrl:
@@ -127,17 +136,25 @@ class SocialLogin:
             email = user_data.get("email")
 
             find_user = await User.get_user_by_email(self.session, email)
+            access_token_jwt = ""
+            refresh_token_jwt = ""
             if not find_user:
                 message = "회원 가입이 필요합니다."
                 login_state = LoginState.sign_up
-                access_token = ""
+            else:
+                user_id = find_user.user_id
+                access_token_jwt, access_expires = create_access_token(data={"sub": user_id})
+                refresh_token_jwt, refresh_expires = create_refresh_token(data={"sub": user_id})
+                await User.update_tokens(
+                    self.session, user_id, access_token_jwt, refresh_token_jwt, access_expires, refresh_expires
+                )
 
         return LoginResponse(
             ok=True,
             message=message,
             login_state=login_state,
-            access_token=access_token,
-            refresh_token="",
+            access_token=access_token_jwt,
+            refresh_token=refresh_token_jwt,
         )
 
     async def github_login(self) -> LoginUrl:
@@ -165,7 +182,7 @@ class SocialLogin:
             response = await client.post("https://github.com/login/oauth/access_token", headers=headers, json=data)
             if not response.is_success:
                 raise HTTPException(
-                    status_code=500, detail=f"Error in getting token or user data from GitHub API: {response.json()}"
+                    status_code=500, detail=f"Error in getting token or user data from GitHub API: {response.content}"
                 )
 
             res_data = parse_qs(response.content.decode())
@@ -181,17 +198,25 @@ class SocialLogin:
             email = user_data.get("email")
 
             find_user = await User.get_user_by_email(self.session, email)
+            access_token_jwt = ""
+            refresh_token_jwt = ""
             if not find_user:
                 message = "회원 가입이 필요합니다."
                 login_state = LoginState.sign_up
-                access_token = ""
+            else:
+                user_id = find_user.user_id
+                access_token_jwt, access_expires = create_access_token(data={"sub": user_id})
+                refresh_token_jwt, refresh_expires = create_refresh_token(data={"sub": user_id})
+                await User.update_tokens(
+                    self.session, user_id, access_token_jwt, refresh_token_jwt, access_expires, refresh_expires
+                )
 
         return LoginResponse(
             ok=True,
             message=message,
             login_state=login_state,
-            access_token=access_token,
-            refresh_token="",
+            access_token=access_token_jwt,
+            refresh_token=refresh_token_jwt,
         )
 
     async def kakao_login(self) -> LoginUrl:
@@ -235,17 +260,25 @@ class SocialLogin:
             email = kakao_account.get("email")
 
             find_user = await User.get_user_by_email(self.session, email)
+            access_token_jwt = ""
+            refresh_token_jwt = ""
             if not find_user:
                 message = "회원 가입이 필요합니다."
                 login_state = LoginState.sign_up
-                access_token = ""
+            else:
+                user_id = find_user.user_id
+                access_token_jwt, access_expires = create_access_token(data={"sub": user_id})
+                refresh_token_jwt, refresh_expires = create_refresh_token(data={"sub": user_id})
+                await User.update_tokens(
+                    self.session, user_id, access_token_jwt, refresh_token_jwt, access_expires, refresh_expires
+                )
 
         return LoginResponse(
             ok=True,
             message=message,
             login_state=login_state,
-            access_token=access_token,
-            refresh_token="",
+            access_token=access_token_jwt,
+            refresh_token=refresh_token_jwt,
         )
 
 
