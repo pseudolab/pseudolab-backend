@@ -1,6 +1,13 @@
 from fastapi import APIRouter, Depends, Path
 
-from .schema import BingoBoardRequest, BingoBoardResponse, UpdateBingoCountResponse, UserSelectedWordsResponse, UpdateBingoStatusResponse
+from .schema import (
+    BingoBoardRequest,
+    BingoBoardResponse,
+    UpdateBingoCountResponse,
+    UserSelectedWordsResponse,
+    UpdateBingoStatusResponse,
+    GetUserBingoEventUser,
+)
 from .services import (
     CreateBingoBoard,
     GetBingoBoardByUserId,
@@ -8,13 +15,14 @@ from .services import (
     UpdateBingoCount,
     GetUserSelectedWords,
     UpdateBingoStatusBySelectedUser,
+    GetBingoEventUser,
 )
 
 
 bingo_boards_router = APIRouter(prefix="/bingo/boards", tags=["bingo"])
 
 
-@bingo_boards_router.post("/", response_model=BingoBoardResponse)
+@bingo_boards_router.post("", response_model=BingoBoardResponse)
 async def create_board(
     data: BingoBoardRequest,
     bingo_boards: CreateBingoBoard = Depends(CreateBingoBoard),
@@ -53,6 +61,7 @@ async def get_user_selected_words(
 ):
     return await bingo_boards.execute(user_id)
 
+
 @bingo_boards_router.put("/bingo_status/{send_user_id}/{receive_user_id}", response_model=UpdateBingoStatusResponse)
 async def update_bingo_status(
     send_user_id: int = Path(..., title="요청 유저 ID", ge=0),
@@ -60,3 +69,11 @@ async def update_bingo_status(
     bingo_boards: UpdateBingoStatusBySelectedUser = Depends(UpdateBingoStatusBySelectedUser),
 ):
     return await bingo_boards.execute(send_user_id, receive_user_id)
+
+
+@bingo_boards_router.get("/bingo_event_users/{bingo_count}", response_model=GetUserBingoEventUser)
+async def get_bingo_event_users(
+    bingo_count: int = Path(..., title="이벤트 조건 빙고 갯수", ge=0),
+    bingo_boards: GetBingoEventUser = Depends(GetBingoEventUser),
+):
+    return await bingo_boards.execute(bingo_count)

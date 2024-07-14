@@ -3,6 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 from core.base_schema import BaseSchema
+from models.bingo.schema import BingoEventUserInfo
 
 
 class BingoBoardRequest(BaseModel):
@@ -65,3 +66,7 @@ class UpdateBingoStatusResponse(BaseSchema):
     receive_user_id: Optional[int] = Field(title="대상 유저 ID", default=None)
     updated_words: Optional[list[str]] = Field(title="업데이트된 단어들", default=None)
     bingo_count: Optional[int] = Field(title="업데이트된 빙고 갯수", default=None)
+
+class GetUserBingoEventUser(BaseSchema):
+    bingo_event_users: Optional[list[BingoEventUserInfo]] = Field(title="빙고 이벤트 당첨 유저 목록", default=None)
+

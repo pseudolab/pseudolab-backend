@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: mysql+aiomysql://${DB_ROOT}:${DB_ROOT_PASSWORD}@db:3306/${DB_DATABASE}
+    ports:
+      - "8000:8000"
+    command: >
+      /bin/sh -c "
+        alembic upgrade head;
+        python start.py
+      "
+
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysql -u ${DB_USER} -p${DB_PASSWORD} -e 'SHOW DATABASES LIKE \"pseudolab\";'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mysql-data:

@@ -1,20 +1,23 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
+import asyncio
 
 from sqlalchemy.orm import mapped_column
-from sqlalchemy import Integer, DateTime, JSON
+from sqlalchemy import Integer, DateTime, JSON, select, desc
 from sqlalchemy.ext.mutable import MutableDict
 
 from core.db import AsyncSession
 from models.base import Base
-from models.bingo.schema import BingoInteractionSchema
+from models.bingo.schema import BingoInteractionSchema, BingoEventUserInfo
+from models.user import BingoUser
+
 
 class BingoBoards(Base):
     __tablename__ = "bingo_boards"
 
     user_id = mapped_column(Integer, primary_key=True, nullable=False)
     board_data = mapped_column(MutableDict.as_mutable(JSON), nullable=False)
-    
+
     bingo_count = mapped_column(Integer, default=0, nullable=False)
     created_at = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(ZoneInfo("Asia/Seoul")), nullable=False
@@ -83,14 +86,16 @@ class BingoBoards(Base):
 
         board_data = board.board_data
         selected_words = []
-        for i in range(5):
-            for j in range(5):
-                if board_data[str(i * 5 + j)]["selected"] == 1:
-                    selected_words.append(board_data[str(i * 5 + j)]["value"])
+        for board_block in board_data.values():
+            if board_block.get("selected") == 1:
+                selected_words.append(board_block.get("value"))
+
         return selected_words
 
     @classmethod
-    async def update_bingo_status_by_selected_user(cls, session: AsyncSession, send_user_id: int, receive_user_id: int) -> BingoInteractionSchema:
+    async def update_bingo_status_by_selected_user(
+        cls, session: AsyncSession, send_user_id: int, receive_user_id: int
+    ) -> BingoInteractionSchema:
         board = await cls.get_board_by_userid(session, receive_user_id)
         selected_words = await cls.get_user_selected_words(session, send_user_id)
         board_data = board.board_data
@@ -101,7 +106,7 @@ class BingoBoards(Base):
                 board_item["status"] = 1
                 update_words.append(board_item["value"])
                 selected_words.remove(board_item["value"])
-            
+
             if not selected_words:
                 break
 
@@ -112,5 +117,21 @@ class BingoBoards(Base):
             send_user_id=send_user_id,
             receive_user_id=receive_user_id,
             updated_words=update_words,
-            bingo_count=board.bingo_count
+            bingo_count=board.bingo_count,
         )
+
+    @classmethod
+    async def get_bingo_event_users(cls, session: AsyncSession, bingo_count: int) -> list:
+        query = select(cls).filter(cls.bingo_count >= bingo_count).order_by(desc(cls.bingo_count))
+        result = await session.execute(query)
+        bingo_event_users = [(board.user_id, board.bingo_count) for board in result.scalars().all()]
+
+        selected_users_info = await asyncio.gather(
+            *[BingoUser.get_user_by_id(session, user_id) for user_id, _ in bingo_event_users]
+        )
+        bingo_event_users_info = [
+            BingoEventUserInfo(rank=idx, user_name=user_info.username, bingo_count=bingo_count)
+            for idx, ((_, bingo_count), user_info) in enumerate(zip(bingo_event_users, selected_users_info), start=1)
+        ]
+
+        return bingo_event_users_info

@@ -4,6 +4,11 @@ from pydantic import Field
 from typing import Optional
 
 
+class BingoUser(BaseSchema):
+    user_id: Optional[int] = Field(title="빙고 유저 ID", default=None)
+    username: Optional[str] = Field(title="빙고 유저 이름", default=None)
+
+
 class LoginState(IntEnum):
     none = -1
     sign_in = 0
