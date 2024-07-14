@@ -13,12 +13,8 @@ class ApplicationForm(Base):
     form_type = mapped_column(
         Integer, nullable=False, comment="신청양식 구분 (1: builder, 2: learner)"
     )
-    created_at = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), comment="입력 날짜"
-    )
-    updated_at = mapped_column(
-        DateTime(timezone=True), onupdate=func.now(), comment="수정 날짜"
-    )
+    created_at = mapped_column(Integer, comment="입력 날짜")
+    updated_at = mapped_column(Integer, comment="수정 날짜")
 
 
 class BuilderApplication(Base):

@@ -6,11 +6,11 @@ from models.base import Base
 class Period(Base):
     __tablename__ = "period"
 
-    id = mapped_column(Integer, primary_key=True)
-    start = mapped_column(Integer, nullable=True)
-    end = mapped_column(Integer, nullable=True)
-    leaner_open = mapped_column(Integer, nullable=True)
-    leaner_close = mapped_column(Integer, nullable=True)
+    id = mapped_column(Integer, primary_key=True, comment="기수ID")
+    start = mapped_column(Integer, nullable=True, comment="기수 시작일")
+    end = mapped_column(Integer, nullable=True, comment="기수 종료일")
+    leaner_open = mapped_column(Integer, nullable=True, comment="러너모집 시작일")
+    leaner_close = mapped_column(Integer, nullable=True, comment="러너모집 종료일")
 
 
 class Academy(Base):
