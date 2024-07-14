@@ -35,7 +35,7 @@ class BingoUser(Base):
         if not user:
             raise ValueError(f"{username} 의 빙고 유저가 존재하지 않습니다.")
         return user
-    
+
     @classmethod
     async def get_user_by_id(cls, session: AsyncSession, user_id: int):
         res = await session.execute(select(cls).where(cls.user_id == user_id))
@@ -65,14 +65,41 @@ class User(Base):
     enabled = mapped_column(Boolean, nullable=False)
     created_at = mapped_column(DateTime, nullable=False)
 
+    access_token = mapped_column(String(255), nullable=True)
+    refresh_token = mapped_column(String(255), nullable=True)
+    access_token_expires_at = mapped_column(DateTime, nullable=True)
+    refresh_token_expires_at = mapped_column(DateTime, nullable=True)
+
     @classmethod
     async def get_user_by_id(cls, session: AsyncSession, user_id: int):
-        stmt = select(cls).where(cls.id == user_id)
+        stmt = select(cls).where(cls.user_id == user_id)
         result = await session.execute(stmt)
-        return result.sclar()
+        return result.scalar()
 
     @classmethod
     async def get_user_by_email(cls, session: AsyncSession, email: str):
         stmt = select(cls).where(cls.email == email)
         result = await session.execute(stmt)
-        return result.one_or_none()
+        return result.scalar_one_or_none()
+
+    @classmethod
+    async def update_tokens(
+        cls,
+        session: AsyncSession,
+        user_id: int,
+        access_token: str,
+        refresh_token: str,
+        access_expires: datetime,
+        refresh_expires: datetime,
+    ):
+        stmt = select(cls).where(cls.user_id == user_id)
+        result = await session.execute(stmt)
+        user = result.scalar()
+        if user:
+            user.access_token = access_token
+            user.refresh_token = refresh_token
+            user.access_token_expires_at = access_expires
+            user.refresh_token_expires_at = refresh_expires
+            await session.commit()
+            await session.refresh(user)
+        return user
