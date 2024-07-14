@@ -86,7 +86,6 @@ class SocialLogin:
                     self.session, user_id, access_token_jwt, refresh_token_jwt, access_expires, refresh_expires
                 )
 
-        # DB 체크해서 로그인, 회원가입 상태 체크
         return LoginResponse(
             ok=True,
             message=message,
