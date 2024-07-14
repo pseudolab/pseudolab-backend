@@ -17,9 +17,9 @@ class Academy(Base):
     __tablename__ = "academy"
 
     id = mapped_column(Integer, primary_key=True, nullable=False, comment="아카데미ID")
-    user_id = mapped_column(Integer, ForeignKey('user.id'), nullable=False, comment="빌더유저ID")
+    user_id = mapped_column(Integer, ForeignKey('user.user_id'), nullable=False, comment="빌더유저ID")
     period_id = mapped_column(Integer, ForeignKey('period.id'), nullable=False, comment="기수ID")
-    academy_name = mapped_column(String, nullable=False, comment="아카데미 이름")
-    description = mapped_column(String, nullable=True, comment="아카데미 설명")
+    academy_name = mapped_column(String(100), nullable=False, comment="아카데미 이름")
+    description = mapped_column(String(255), nullable=True, comment="아카데미 설명")
 
     # user = relationship("User", back_populates="academie")
