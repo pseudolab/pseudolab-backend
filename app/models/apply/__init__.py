@@ -1,4 +1,4 @@
-from .academy import Academy, Period
-from .form import ApplicationForm, BuilderApplication, LearnerApplication
+from .academy import Academy, Period, LearnerAcademy
+from .form import FormRepository, Application
 
-__all__ = ["Academy", "Period", "ApplicationForm", "BuilderApplication", "LearnerApplication"]
+__all__ = ["Academy", "Period", "LearnerAcademy", "FormRepository", "Application"]

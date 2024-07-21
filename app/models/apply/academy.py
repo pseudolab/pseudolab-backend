@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, String, ForeignKey
+from sqlalchemy import Boolean, Integer, String, ForeignKey
 from sqlalchemy.orm import mapped_column, relationship
 
 from models.base import Base
@@ -19,7 +19,16 @@ class Academy(Base):
     id = mapped_column(Integer, primary_key=True, nullable=False, comment="아카데미ID")
     user_id = mapped_column(Integer, ForeignKey('user.user_id'), nullable=False, comment="빌더유저ID")
     period_id = mapped_column(Integer, ForeignKey('period.id'), nullable=False, comment="기수ID")
+    application_id = mapped_column(Integer, ForeignKey('application.id'), nullable=False, comment="신청서ID")
     academy_name = mapped_column(String(100), nullable=False, comment="아카데미 이름")
     description = mapped_column(String(255), nullable=True, comment="아카데미 설명")
 
     # user = relationship("User", back_populates="academie")
+
+class LearnerAcademy(Base):
+    __tablename__ = "learner_academy"
+
+    id = mapped_column(Integer, primary_key=True, nullable=False, comment="러너아카데미ID")
+    user_id = mapped_column(Integer, ForeignKey("user.user_id"), comment="러너유저ID")
+    academy_id = mapped_column(Integer, ForeignKey("academy.id"), nullable=False, comment="아카데미ID")
+    is_completed = mapped_column(Boolean, nullable=False, default=False, comment="수료여부")
