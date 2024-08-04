@@ -15,6 +15,13 @@ class LoginState(IntEnum):
     sign_up = 1
 
 
+class LoginType:
+    discord = 0
+    google = 1
+    github = 2
+    kakao = 3
+
+
 class LoginToken(BaseSchema):
     login_type: Optional[LoginState] = Field(description="Social 로그인 종류")
     code: Optional[str] = Field(description="각 Social 로그인이 발급해주는 accept token")

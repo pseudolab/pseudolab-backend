@@ -3,7 +3,7 @@ name: Deploy development server
 on:
   push:
     branches:
-      - dev
+      # - dev
     workflow_dispatch:
 
 jobs:
