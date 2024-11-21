@@ -68,3 +68,11 @@ class GetBingoEventUser(BaseBingoBoard):
             return GetUserBingoEventUser(bingo_event_users=res, ok=True, message="빙고 이벤트 당첨 유저 목록 생성에 성공하였습니다.")
         except ValueError as e:
             return GetUserBingoEventUser(ok=False, message=str(e))
+        
+class UpdateBingoStatusByQRScan(BaseBingoBoard):
+    async def execute(self, iser_id: int, booth_id: int) -> BingoBoards:
+        try:
+            res = await BingoBoards.update_bingo_status_by_qr_scan(self.async_session, iser_id, booth_id)
+            return UpdateBingoStatusResponse(**res.__dict__, ok=True, message="빙고판 상태 업데이트에 성공하였습니다.")
+        except ValueError as e:
+            return UpdateBingoStatusResponse(ok=False, message=str(e))

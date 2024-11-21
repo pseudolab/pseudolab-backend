@@ -1,6 +1,7 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import asyncio
+import random
 
 from sqlalchemy.orm import mapped_column
 from sqlalchemy import Integer, DateTime, JSON, select, desc
@@ -135,3 +136,26 @@ class BingoBoards(Base):
         ]
 
         return bingo_event_users_info
+    
+    @classmethod
+    async def update_bingo_status_by_qr_scan(cls, session: AsyncSession, user_id: int, booth_id: int):
+        booth_exist = False
+        not_selected_ids = []
+        # get board_data, check user_id is already have booth bingo
+        board = await cls.get_board_by_userid(session, user_id)
+        board_data = board.board_data
+        for idx, bingo_dict in board_data.items():
+            value, status = bingo_dict["value"], bingo_dict["status"]
+            if value == f'Booth {booth_id}':
+                booth_exist = True
+                break
+            if status == 0:
+                # get not selected list
+                not_selected_ids.append(idx)
+        
+        if not booth_exist:
+            # update random board data
+            booth_idx = random.choice(not_selected_ids)
+            board_data[booth_idx]["value"] = f'Booth {booth_id}'
+            board_data[booth_idx]["status"] = 1
+            await cls.update_board_by_userid(session, user_id, board_data)
