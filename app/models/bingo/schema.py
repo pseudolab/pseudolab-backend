@@ -19,11 +19,20 @@ class BingoBoardSchema(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+
 class BingoInteractionSchema(BaseModel):
     send_user_id: int
     receive_user_id: int
     updated_words: list[str]
     bingo_count: int
+
+
+class BingoQRScanSchema(BaseModel):
+    user_id: int
+    booth_id: int
+    updated_words: list[str]
+    bingo_count: int
+
 
 class BingoEventUserInfo(BaseModel):
     rank: int

@@ -1,6 +1,6 @@
 from core.db import AsyncSessionDepends
 from models.bingo import BingoBoards
-from api.bingo.bingo_boards.schema import BingoBoardRequest, BingoBoardResponse, UpdateBingoCountResponse, UserSelectedWordsResponse, UpdateBingoStatusResponse, GetUserBingoEventUser
+from api.bingo.bingo_boards.schema import BingoBoardRequest, BingoBoardResponse, UpdateBingoCountResponse, UserSelectedWordsResponse, UpdateBingoStatusResponse, GetUserBingoEventUser, UpdateBingoStatusResponseByQRScan
 
 
 class BaseBingoBoard:
@@ -70,9 +70,9 @@ class GetBingoEventUser(BaseBingoBoard):
             return GetUserBingoEventUser(ok=False, message=str(e))
         
 class UpdateBingoStatusByQRScan(BaseBingoBoard):
-    async def execute(self, iser_id: int, booth_id: int) -> BingoBoards:
+    async def execute(self, user_id: int, booth_id: int) -> BingoBoards:
         try:
-            res = await BingoBoards.update_bingo_status_by_qr_scan(self.async_session, iser_id, booth_id)
-            return UpdateBingoStatusResponse(**res.__dict__, ok=True, message="빙고판 상태 업데이트에 성공하였습니다.")
+            res = await BingoBoards.update_bingo_status_by_qr_scan(self.async_session, user_id, booth_id)
+            return UpdateBingoStatusResponseByQRScan(**res.__dict__, ok=True, message="빙고판 상태 업데이트에 성공하였습니다.")
         except ValueError as e:
-            return UpdateBingoStatusResponse(ok=False, message=str(e))
+            return UpdateBingoStatusResponseByQRScan(ok=False, message=str(e))

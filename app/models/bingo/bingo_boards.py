@@ -9,7 +9,7 @@ from sqlalchemy.ext.mutable import MutableDict
 
 from core.db import AsyncSession
 from models.base import Base
-from models.bingo.schema import BingoInteractionSchema, BingoEventUserInfo
+from models.bingo.schema import BingoInteractionSchema, BingoEventUserInfo, BingoQRScanSchema
 from models.user import BingoUser
 
 
@@ -144,9 +144,10 @@ class BingoBoards(Base):
         # get board_data, check user_id is already have booth bingo
         board = await cls.get_board_by_userid(session, user_id)
         board_data = board.board_data
+        updated_booth_name = f'Booth {booth_id}'
         for idx, bingo_dict in board_data.items():
             value, status = bingo_dict["value"], bingo_dict["status"]
-            if value == f'Booth {booth_id}':
+            if value == updated_booth_name:
                 booth_exist = True
                 break
             if status == 0:
@@ -156,6 +157,14 @@ class BingoBoards(Base):
         if not booth_exist:
             # update random board data
             booth_idx = random.choice(not_selected_ids)
-            board_data[booth_idx]["value"] = f'Booth {booth_id}'
+            board_data[booth_idx]["value"] = updated_booth_name
             board_data[booth_idx]["status"] = 1
             await cls.update_board_by_userid(session, user_id, board_data)
+
+
+        return BingoQRScanSchema(
+            user_id=user_id,
+            booth_id=booth_id,
+            updated_words=[updated_booth_name],
+            bingo_count=board.bingo_count,
+        )

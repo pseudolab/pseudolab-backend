@@ -6,6 +6,7 @@ from .schema import (
     UpdateBingoCountResponse,
     UserSelectedWordsResponse,
     UpdateBingoStatusResponse,
+    UpdateBingoStatusResponseByQRScan,
     GetUserBingoEventUser,
 )
 from .services import (
@@ -80,10 +81,10 @@ async def get_bingo_event_users(
     return await bingo_boards.execute(bingo_count)
 
 
-@bingo_boards_router.patch("/update/{user_id}/{booth_id}")
+@bingo_boards_router.patch("/update/{user_id}/{booth_id}", response_model=UpdateBingoStatusResponseByQRScan)
 async def update_bingo_status_booth(
-    user_id: str,
-    booth_id: str,
+    user_id: int = Path(..., title="요청 유저 ID", ge=0),
+    booth_id: int = Path(..., title="요청 부스 ID", ge=0),
     bingo_boards: UpdateBingoStatusByQRScan = Depends(UpdateBingoStatusByQRScan),
 ):
     return await bingo_boards.execute(user_id, booth_id)
