@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, Path, Request, HTTPException
 from api.auth.schema import LoginToken, LoginResponse, BingoUser, LoginType, LoginUrl
 from api.auth.services.social_login import SocialLoginDepends
-from api.auth.services.bingo_login import CreateBingoUser, GetBingoUserByName, GetBingoUserById
+from api.auth.services.bingo_login import LoginUser, GetBingoUserByName, GetBingoUserById
 
 auth_router = APIRouter(prefix="/auth")
 
 
 @auth_router.post("/bingo/sign-up", response_model=BingoUser, description="빙고용 임시 회원가입 API")
-async def bingo_sign_up(username: str, bingo_user: CreateBingoUser = Depends(CreateBingoUser)):
-    res = await bingo_user.execute(username)
+async def bingo_sign_up(username: str, password: str, bingo_user: LoginUser = Depends(LoginUser)):
+    res = await bingo_user.execute(username, password)
     return res
 
 

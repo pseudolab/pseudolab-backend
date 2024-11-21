@@ -8,10 +8,14 @@ class BaseBingoUser:
         self.async_session = session
 
 
-class CreateBingoUser(BaseBingoUser):
-    async def execute(self, username: str) -> BingoUser:
+class LoginUser(BaseBingoUser):
+    async def execute(self, username: str, password: str) -> BingoUser:
         try:
-            user = await BingoUser.create(self.async_session, username)
+            user = await BingoUser.get_user_by_name(self.async_session, username)
+            if not user:
+                user = await BingoUser.create(self.async_session, username, password)
+            elif password != user.password:
+                raise ValueError("password가 잘못되었습니다.")
             return BingoUserResponse(**user.__dict__, ok=True, message="빙고 유저 생성에 성공하였습니다.")
         except ValueError as e:
             return BingoUserResponse(ok=False, message=str(e))
