@@ -169,6 +169,7 @@ class BingoBoards(Base):
             board_data[booth_idx]["value"] = updated_booth_name
             board_data[booth_idx]["status"] = 1
             await cls.update_board_by_userid(session, user_id, board_data)
+            board = await cls.update_bingo_count(session, user_id)
 
 
         return BingoQRScanSchema(
