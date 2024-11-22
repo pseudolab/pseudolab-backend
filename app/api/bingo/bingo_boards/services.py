@@ -1,6 +1,6 @@
 from core.db import AsyncSessionDepends
 from models.bingo import BingoBoards
-from api.bingo.bingo_boards.schema import BingoBoardResponse, UpdateBingoCountResponse, UserSelectedWordsResponse, UpdateBingoStatusResponse, GetUserBingoEventUser
+from api.bingo.bingo_boards.schema import BingoBoardRequest, BingoBoardResponse, UpdateBingoCountResponse, UserSelectedWordsResponse, UpdateBingoStatusResponse, GetUserBingoEventUser, UpdateBingoStatusResponseByQRScan
 
 
 class BaseBingoBoard:
@@ -11,6 +11,7 @@ class BaseBingoBoard:
 class CreateBingoBoard(BaseBingoBoard):
     async def execute(self, user_id: int, board_data: dict) -> BingoBoards:
         try:
+            board_data = BingoBoardRequest.Config.json_schema_extra["example"]["board_data"]
             res = await BingoBoards.create(self.async_session, user_id, board_data)
             return BingoBoardResponse(**res.__dict__, ok=True, message="빙고판 생성에 성공하였습니다.")
         except ValueError as e:
@@ -67,3 +68,11 @@ class GetBingoEventUser(BaseBingoBoard):
             return GetUserBingoEventUser(bingo_event_users=res, ok=True, message="빙고 이벤트 당첨 유저 목록 생성에 성공하였습니다.")
         except ValueError as e:
             return GetUserBingoEventUser(ok=False, message=str(e))
+        
+class UpdateBingoStatusByQRScan(BaseBingoBoard):
+    async def execute(self, user_id: int, booth_id: int) -> BingoBoards:
+        try:
+            res = await BingoBoards.update_bingo_status_by_qr_scan(self.async_session, user_id, booth_id)
+            return UpdateBingoStatusResponseByQRScan(**res.__dict__, ok=True, message="빙고판 상태 업데이트에 성공하였습니다.")
+        except ValueError as e:
+            return UpdateBingoStatusResponseByQRScan(ok=False, message=str(e))
