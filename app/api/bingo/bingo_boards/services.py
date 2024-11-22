@@ -11,7 +11,6 @@ class BaseBingoBoard:
 class CreateBingoBoard(BaseBingoBoard):
     async def execute(self, user_id: int, board_data: dict) -> BingoBoards:
         try:
-            board_data = BingoBoardRequest.Config.json_schema_extra["example"]["board_data"]
             res = await BingoBoards.create(self.async_session, user_id, board_data)
             return BingoBoardResponse(**res.__dict__, ok=True, message="빙고판 생성에 성공하였습니다.")
         except ValueError as e:

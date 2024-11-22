@@ -98,26 +98,35 @@ class BingoBoards(Base):
         cls, session: AsyncSession, send_user_id: int, receive_user_id: int
     ) -> BingoInteractionSchema:
         board = await cls.get_board_by_userid(session, receive_user_id)
-        selected_words = await cls.get_user_selected_words(session, send_user_id)
+        # selected_words = await cls.get_user_selected_words(session, send_user_id)
         board_data = board.board_data
-        update_words = []
+        already_interaction = False
 
-        for board_item in board_data.values():
-            if board_item["value"] in selected_words:
-                board_item["status"] = 1
-                update_words.append(board_item["value"])
-                selected_words.remove(board_item["value"])
-
-            if not selected_words:
+        not_selected_ids = []
+        for idx, bingo_dict in board_data.items():
+            status, user_id = bingo_dict["status"], bingo_dict["user_id"]
+            if user_id == send_user_id: # 이미 interaction 한 유저인 경우는 Pass
+                already_interaction = True
                 break
+            if status == 0:
+                # get not selected list
+                not_selected_ids.append(idx)
 
-        await cls.update_board_by_userid(session, receive_user_id, board_data)
-        board = await cls.update_bingo_count(session, receive_user_id)
+        user = None
+        if not already_interaction:
+            user = await session.get(cls, send_user_id)
+            # update random board data
+            update_idx = random.choice(not_selected_ids)
+            board_data[update_idx]["value"] = user
+            board_data[update_idx]["status"] = 1
+            board_data[update_idx]["user_id"] = send_user_id
+            await cls.update_board_by_userid(session, receive_user_id, board_data)
+            board = await cls.update_bingo_count(session, receive_user_id)
 
         return BingoInteractionSchema(
             send_user_id=send_user_id,
             receive_user_id=receive_user_id,
-            updated_words=update_words,
+            updated_words=[user],
             bingo_count=board.bingo_count,
         )
 
