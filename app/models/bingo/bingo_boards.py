@@ -97,17 +97,26 @@ class BingoBoards(Base):
     async def update_bingo_status_by_selected_user(
         cls, session: AsyncSession, send_user_id: int, receive_user_id: int
     ) -> BingoInteractionSchema:
+        if send_user_id == receive_user_id:
+            raise ValueError("보내는 계정과 받는 계정이 같습니다.")
+
         board = await cls.get_board_by_userid(session, receive_user_id)
         # selected_words = await cls.get_user_selected_words(session, send_user_id)
         board_data = board.board_data
-        send_user = await session.get(cls, send_user_id)
-        receive_user = await session.get(cls, receive_user_id)
+        send_user = await BingoUser.get_user_by_id(session, send_user_id)
+        if not send_user:
+            raise ValueError(f"{send_user_id} 존재하지 않는 아이디")
+
+        receive_user = await BingoUser.get_user_by_id(session, receive_user_id)
+        if not receive_user:
+            raise ValueError(f"{receive_user_id} 존재하지 않는 아이디")
+
         already_interaction = False
 
         not_selected_ids = []
         for idx, bingo_dict in board_data.items():
             value, status = bingo_dict["value"], bingo_dict["status"]
-            if receive_user == value: # 이미 interaction 한 유저인 경우는 Pass
+            if receive_user.username == value:  # 이미 interaction 한 유저인 경우는 Pass
                 already_interaction = True
                 break
             if status == 0:
@@ -117,7 +126,7 @@ class BingoBoards(Base):
         if not already_interaction:
             # update random board data
             update_idx = random.choice(not_selected_ids)
-            board_data[update_idx]["value"] = send_user
+            board_data[update_idx]["value"] = send_user.username
             board_data[update_idx]["status"] = 1
             board_data[update_idx]["user_id"] = send_user_id
             await cls.update_board_by_userid(session, receive_user_id, board_data)
@@ -126,7 +135,7 @@ class BingoBoards(Base):
         return BingoInteractionSchema(
             send_user_id=send_user_id,
             receive_user_id=receive_user_id,
-            updated_words=[send_user],
+            updated_words=[send_user.username],
             bingo_count=board.bingo_count,
         )
 
@@ -145,7 +154,7 @@ class BingoBoards(Base):
         ]
 
         return bingo_event_users_info
-    
+
     @classmethod
     async def update_bingo_status_by_qr_scan(cls, session: AsyncSession, user_id: int, booth_id: int):
         booth_exist = False
@@ -153,7 +162,7 @@ class BingoBoards(Base):
         # get board_data, check user_id is already have booth bingo
         board = await cls.get_board_by_userid(session, user_id)
         board_data = board.board_data
-        updated_booth_name = f'Booth {booth_id}'
+        updated_booth_name = f"Booth {booth_id}"
         for idx, bingo_dict in board_data.items():
             value, status = bingo_dict["value"], bingo_dict["status"]
             if value == updated_booth_name:
@@ -162,7 +171,7 @@ class BingoBoards(Base):
             if status == 0:
                 # get not selected list
                 not_selected_ids.append(idx)
-        
+
         if not booth_exist:
             # update random board data
             booth_idx = random.choice(not_selected_ids)
@@ -170,7 +179,6 @@ class BingoBoards(Base):
             board_data[booth_idx]["status"] = 1
             await cls.update_board_by_userid(session, user_id, board_data)
             board = await cls.update_bingo_count(session, user_id)
-
 
         return BingoQRScanSchema(
             user_id=user_id,

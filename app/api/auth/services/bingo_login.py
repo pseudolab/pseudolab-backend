@@ -25,6 +25,9 @@ class GetBingoUserByName(BaseBingoUser):
     async def execute(self, username: str) -> BingoUser:
         try:
             user = await BingoUser.get_user_by_name(self.async_session, username)
+            if user is None:
+                raise ValueError(f"{user} 가 존재하지 않습니다.")
+
             return BingoUserResponse(**user.__dict__, ok=True, message="빙고 유저 조회에 성공하였습니다.")
         except ValueError as e:
             return BingoUserResponse(ok=False, message=str(e))
