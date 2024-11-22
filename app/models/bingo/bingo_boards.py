@@ -116,7 +116,7 @@ class BingoBoards(Base):
         not_selected_ids = []
         for idx, bingo_dict in board_data.items():
             value, status = bingo_dict["value"], bingo_dict["status"]
-            if receive_user.username == value:  # 이미 interaction 한 유저인 경우는 Pass
+            if send_user.username == value:  # 이미 interaction 한 유저인 경우는 Pass
                 already_interaction = True
                 break
             if status == 0:
